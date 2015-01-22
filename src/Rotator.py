@@ -42,12 +42,17 @@ class Rotator :
 		# Issue Azimuth command
 		self.rotor.flushInput();
 		self.rotor.write("A" + str(reqAzimuth) + "\r")
+		print "Written: " + "A" + str(reqAzimuth) + "\r"
+		print "Read: " + self.rotor.read(14)
 		# Issue Elevation command
+		self.rotor.flushInput();
 		self.rotor.write("E" + str(reqElevation) + "\r")
+		print "Written: " + "E" + str(reqElevation) + "\r"
+		print "Read: " + self.rotor.read(14)
 		return
 		
 	def printPosition(self)
-		print("Azimuth: " + self.getAzimuth() + " Elevation: " + self.getElevation())
+		print("Azimuth: " + str(self.getAzimuth()) + " Elevation: " + str(self.getElevation()))
 		return
 # Test code
 import serial
