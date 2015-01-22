@@ -11,10 +11,12 @@ class Rotator :
 	def getAzimuth(self) :
 		"""Returns the current Azimuth of the antenna"""
 		self.rotor.flushInput();
-		# Request Azimuth mode
-		self.rotor.write("A\r")
-		# Read response, example response: "A\r\nA=150.5 S=6 S\r\n"
-		response = self.rotor.read(128)
+		response = ""
+		while (len(response) < 4) :
+			# Request Azimuth mode
+			self.rotor.write("A\r")
+			# Read response, example response: "A\r\nA=150.5 S=6 S\r\n"
+			response = self.rotor.read()
 		# Extract position value
 		startIndex = response.find("A=") + 2
 		endIndex = startIndex + response[startIndex:].find(" ")
@@ -26,7 +28,7 @@ class Rotator :
 		# Request Elevation mode
 		self.rotor.write("E\r")
 		# Read response, example response: "E\r\nE=150.5 S=9 S\r\n"
-		response = self.rotor.read(128)
+		response = self.rotor.readline()
 		# Extract position value
 		startIndex = response.find("E=") + 2
 		endIndex = startIndex + response[startIndex:].find(" ")
