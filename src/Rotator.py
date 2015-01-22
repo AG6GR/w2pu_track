@@ -10,7 +10,7 @@ class Rotator :
 		
 	def getAzimuth(self) :
 		"Returns the current Azimuth of the antenna"
-		rotor.flushInput();
+		self.rotor.flushInput();
 		# Request Azimuth mode
 		self.rotor.write("A\r")
 		# Read response, example response: "A\r\nA=150.5 S=6 S\r\n"
@@ -43,15 +43,19 @@ class Rotator :
 		self.rotor.flushInput();
 		self.rotor.write("A" + str(reqAzimuth) + "\r")
 		print "Written: " + "A" + str(reqAzimuth) + "\r"
-		print "Read: " + self.rotor.read(14)
+		# readline() is critical to ensure correct timing
+		response = self.rotor.readline()
+		#print "Read: " + response
 		# Issue Elevation command
 		self.rotor.flushInput();
 		self.rotor.write("E" + str(reqElevation) + "\r")
-		print "Written: " + "E" + str(reqElevation) + "\r"
-		print "Read: " + self.rotor.read(14)
+		#print "Written: " + "E" + str(reqElevation) + "\r"
+		# readline() is critical to ensure correct timing
+		response = self.rotor.readline()
+		#print "Read: " + response
 		return
 		
-	def printPosition(self)
+	def printPosition(self) :
 		print("Azimuth: " + str(self.getAzimuth()) + " Elevation: " + str(self.getElevation()))
 		return
 # Test code
