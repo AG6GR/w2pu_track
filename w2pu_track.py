@@ -1,6 +1,5 @@
 #--------------------------------------------------------------  w2pu_track
 from Tkinter import *
-import Pmw, serial, os, time, math, ephem, pyaudio
 from array import array
 from itertools import imap
 from operator import mul
@@ -12,11 +11,13 @@ RATE = 12000
 STATION = "W2PU"
 COMPORT = "COM1"
 
+#Initialize MegaWidget
 root = Tk()
 appdir=os.getcwd()
 root_geom=""
 font1='Helvetica'
 
+#Declare variables
 isec0=0
 az=0
 az0=-999
@@ -69,16 +70,20 @@ f1=""
 running=False
 stream=""
 
+# Initialize Serial Communications
 if sys.platform=="win32":
     rotor=serial.Serial(COMPORT,9600,timeout=0.1)          #Rotor control port
 else:
     rotor=serial.Serial("/dev/ttyS0",9600,timeout=0.1)    #Rotor control port
 
+# Define station location for pyephem
 telescope = ephem.Observer()
 telescope.long =  ephem.degrees('-74.625')     #W2PU location
 telescope.lat = ephem.degrees('40.35417')
 telescope.elevation = 43
 
+# Open azel.dat in writing mode
+# Contains last known az/el position of rotators
 f0=open(appdir+'/azel.dat',mode='w')
 
 #---------------------------------------------------------- getAzEl()
@@ -88,6 +93,7 @@ def getAzEl():
     el=-99
     rotor.write("A\r")
     sa=rotor.read(128)                       #Get present Az
+    #Sample output: "A\r\nA=150.5 S=6 S\r\n
     if STATION=="K1JT":
         i0=sa.find("P=")+2
         i1=i0 + sa[i0:].find("S=")-1
@@ -106,6 +112,7 @@ def getAzEl():
 
     rotor.write("E\r")
     se=rotor.read(128)                       #Get present El
+    #Sample output: "E\r\nE=150.5 S=9 S\r\n
     i0=se.find("E=")+2
     i1=i0 + se[i0:].find(" ")
     try:
@@ -255,6 +262,7 @@ def track():
 ##    print 'Behind the date %s is the number %f %f.' % (telescope.date, telescope.date, telescope.date+1.0/86400.0)
     s = ephem.Sun()
     s.compute(telescope)
+    # convert to degrees
     azSun=s.az*57.2957795131
     elSun=s.alt*57.2957795131
 ##    print "Sun:          %7.2f  %7.2f" % (azSun,elSun)
@@ -327,26 +335,30 @@ def update():
     global root_geom,isec0,naz0,nel0,c,c2,azreq,elreq,azreq0,azSun,elSun, \
         azMoon,elMoon,azPSR,elPSR,nWriteToFile0,f1,azNow,elNow,running, \
         stream,s1,s2,s4,n1,n2,n4,azmove,elmove
-
+    
+    # nRun from "Enable A/D" checkbutton
     if(not running and nRun.get()):
+    	# p is pyAudio stream
         stream=p.open(format=FORMAT, channels=1, rate=RATE,input=True,
                         frames_per_buffer=CHUNK_SIZE)
         running=True
-
+    # get the number of seconds
     utc=time.gmtime(time.time())
     isec=utc[5]
     if isec != isec0:                           #Do once per second
         isec0=isec
         lst=str(telescope.sidereal_time())
+        # lst format : "hh:mm:ss.ss"
         t=time.strftime('%Y %b %d\nUTC: %H:%M:%S',utc)
         if(lst[1]==':'): lst='0'+lst
         t=t + '\nLST: ' + lst[0:8]
         utclab.configure(text=t)
         s=rotor.read(40)
         track()                                 #Recompute az,el
+        # azreq and elreq are "manual mode" inputs
         el=elreq
         az=azreq
-
+        # get radiobutton setting
         i=ntrack.get()
         if i==1:                                #Manual
             az=azreq
@@ -391,8 +403,9 @@ def update():
                 az=naz0
                 el=nel0
 
+        # Update red arrow on display
         naz=nint(az)
-        if naz<>naz0:
+        if naz!=naz0:
             naz0=naz
             x=75*math.sin(az/57.2957795)
             y=-75*math.cos(az/57.2957795)
@@ -405,12 +418,13 @@ def update():
                 fill='red',tags='azpointer')
 
         nel=nint(el)
-        if el<>nel0:
+        if el!=nel0:
             nel0=nel
             graph2.delete(c2)
             y=220 - nel*(200.0/80.0)
             c2=graph2.create_line(25,y,32,y,fill='red',width=4)
-
+        
+        # Offset radio buttons
         eloff=float(offset.get())
         azoff=eloff/math.cos(el/57.2957795)
         noff=noffset.get()
@@ -433,6 +447,7 @@ def update():
         else:
             pass
 
+        # Update "requested" textbox
         naz=nint(az)
         nel=nint(el)
         t=str(naz) + '  ' + str(nel)
@@ -442,7 +457,11 @@ def update():
         elpc=0                          #was -1
         az_command=naz+azpc
         el_command=nel+elpc
+        
+        # Prevent negative elevation
         if el_command<0: el_command=0
+        
+        # Move the rotors
         set_rotors(az_command,el_command)
         aa,ee,azmove,elmove=getAzEl()
         if aa != -99: azNow=aa
