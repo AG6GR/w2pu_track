@@ -14,13 +14,24 @@ def loadTLE(url) :
 	tledata = tledatafile.read()
 	tleEntries = tledata.split("\n")
 	for i in range(0, len(tleEntries) - 2, 3) :
-		satelites[tleEntries[i]] = ephem.readtle(tleEntries[i].rstrip("\r\n"), tleEntries[i + 1].rstrip("\r\n"), tleEntries[i + 2].rstrip("\r\n"))
+		satellites[tleEntries[i]] = ephem.readtle(tleEntries[i].rstrip("\r\n"), tleEntries[i + 1].rstrip("\r\n"), tleEntries[i + 2].rstrip("\r\n"))
 	return satlist
 
+# Method for printing current az/alt of tracked satellites
+def printPosition(station, satellites) :
+	for satname in satellites :
+		station.date = ephem.now()
+		satellites[satname].compute(station)
+		altitude = satellites[satname].alt * DEGREES_PER_RADIAN
+		azimuth = satellites[satname].az * DEGREES_PER_RADIAN
+		#if (altitude > 0) :
+		print(satname + ":   \taltitude = " + str(altitude) + " deg \tazimuth = " + str(azimuth) + " deg")
+	return
+	
 # Main
-satelites = dict()
-satelites.update(loadTLE(TLEURL))
-print "Currently loaded " + str(len(satelites)) + " satelites"
+satellites = dict()
+satellites.update(loadTLE(TLEURL))
+print "Currently loaded " + str(len(satellites)) + " satellites"
 
 # Define station location for pyephem
 station = ephem.Observer()
@@ -28,12 +39,4 @@ station.long =  ephem.degrees('-74.625')     #W2PU location
 station.lat = ephem.degrees('40.35417')
 station.elevation = 43
 
-station.date = ephem.now()
-print "Currently Overhead:"
-for satname in satelites :
-	station.date = ephem.now()
-	satelites[satname].compute(station)
-	altitude = satelites[satname].alt * DEGREES_PER_RADIAN
-	azimuth = satelites[satname].az * DEGREES_PER_RADIAN
-	#if (altitude > 0) :
-	print(satname + ": altitude = " + str(altitude) + " deg azimuth = " + str(azimuth) + " deg")
+printPosition(station, satellites)
