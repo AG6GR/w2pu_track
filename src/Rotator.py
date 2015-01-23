@@ -52,7 +52,7 @@ class Rotator :
 			return float(response[startIndex:endIndex])
 		except:
 			# Possible communications error, try again
-			return self.getAzimuth()
+			return self.getElevation()
 	def getSpeed(axis) :
 		"""Returns the current speed for the given axis (A or E).
 		
