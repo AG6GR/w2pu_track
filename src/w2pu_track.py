@@ -10,6 +10,7 @@ RATE = 12000
 ##STATION = "K1JT"
 STATION = "W2PU"
 COMPORT = "COM1"
+DEGREES_PER_RADIAN = 57.2957795131
 
 #Initialize MegaWidget
 root = Tk()
@@ -34,24 +35,7 @@ y0=120
 azreq=153
 azreq0=0
 elreq=0
-azSun=0.
-elSun=0.
-azMoon=0.
-elMoon=0.
-azPSR=0.
-elPSR=0.
-azCAS=0.
-elCAS=0.
-azCYG=0.
-elCYG=0.
-azLEO=0.
-elLEO=0.
-azSGR=0.
-elSGR=0.
-azTAU=0.
-elTAU=0.
-azVIR=0.
-elVIR=0.
+
 azNow=0
 elNow=0
 azmove=0
@@ -81,6 +65,48 @@ telescope = ephem.Observer()
 telescope.long =  ephem.degrees('-74.625')     #W2PU location
 telescope.lat = ephem.degrees('40.35417')
 telescope.elevation = 43
+
+# Setup fixed pyephem bodies
+celestialBodies = dict()
+# Sun
+celestialBodies["Sun"] = ephem.Sun()
+# Moon
+celestialBodies["Moon"] = ephem.Moon()
+# Pulsar B0329+54
+celestialBodies["PSR B0329+54"] = ephem.FixedBody()
+celestialBodies["PSR B0329+54"]._ra = ephem.hours('03:29:11')
+celestialBodies["PSR B0329+54"]._dec = ephem.degrees('54:24:37')
+celestialBodies["PSR B0329+54"]._epoch="1950/1/1 00:00:00"
+# Cassiopeia A
+celestealBodies["Cassiopeia A"] = ephem.FixedBody()
+celestealBodies["Cassiopeia A"]._ra = ephem.hours('23:23:26')
+celestealBodies["Cassiopeia A"]._dec = ephem.degrees('58:48:54')
+celestealBodies["Cassiopeia A"]._epoch="2000/1/1 00:00:00"
+# Cygnus
+celestealBodies["Cygnus A"] = ephem.FixedBody()
+celestealBodies["Cygnus A"]._ra = ephem.hours('19:59:28')
+celestealBodies["Cygnus A"]._dec = ephem.degrees('40:44:01')
+celestealBodies["Cygnus A"]._epoch="2000/1/1 00:00:00"
+# Leo
+celestealBodies["Leo"] = ephem.FixedBody()
+celestealBodies["Leo"]._ra = ephem.hours('09:30:00')
+celestealBodies["Leo"]._dec = ephem.degrees('30:00:00')
+celestealBodies["Leo"]._epoch="2000/1/1 00:00:00"
+# Sagittarius
+celestealBodies["Sagittarius A"] = ephem.FixedBody()
+celestealBodies["Sagittarius A"]._ra = ephem.hours('17:45:12')
+celestealBodies["Sagittarius A"]._dec = ephem.degrees('-28:43:00')
+celestealBodies["Sagittarius A"]._epoch="2000/1/1 00:00:00"
+# Taurus
+celestealBodies["Taurus A"] = ephem.FixedBody()
+celestealBodies["Taurus A"]._ra = ephem.hours('05:34:32')
+celestealBodies["Taurus A"]._dec = ephem.degrees('22:00:52')
+celestealBodies["Taurus A"]._epoch="2000/1/1 00:00:00"
+# Virgo
+celestealBodies["Virgo A"] = ephem.FixedBody()
+celestealBodies["Virgo A"]._ra = ephem.hours('12:30:49')
+celestealBodies["Virgo A"]._dec = ephem.degrees('12:23:28')
+celestealBodies["Virgo A"]._epoch="2000/1/1 00:00:00"
 
 # Open azel.dat in writing mode
 # Contains last known az/el position of rotators
@@ -240,7 +266,7 @@ def mouse_click_g1(event):
     global x0,azreq,t0
     x=event.x - x0
     y=event.y - x0
-    azreq=nint(57.2957795*math.atan2(x,-y))
+    azreq=nint(DEGREES_PER_RADIAN*math.atan2(x,-y))
     if(azreq<0): azreq=azreq+360
     t0=time.clock()
 
@@ -253,7 +279,7 @@ def mouse_click_g2(event):
     elreq = (220-y)*(80.0/200.0)
     t0=time.clock()
 
-#---------------------------------------------------------- track
+#---------------------------------------------------------- track !!SHOULD BE UNUSED!!
 def track():
     global azSun,elSun,azMoon,elMoon,azPSR,elPSR,azCAS,elCAS,azCYG,elCYG, \
                azLEO,elLEO,azSGR,elSGR,azTAU,elTAU,azVIR,elVIR
@@ -263,23 +289,23 @@ def track():
     s = ephem.Sun()
     s.compute(telescope)
     # convert to degrees
-    azSun=s.az*57.2957795131
-    elSun=s.alt*57.2957795131
+    azSun=s.az*DEGREES_PER_RADIAN
+    elSun=s.alt*DEGREES_PER_RADIAN
 ##    print "Sun:          %7.2f  %7.2f" % (azSun,elSun)
 
     m = ephem.Moon()
     m.compute(telescope)
-    azMoon=m.az*57.2957795131
-    elMoon=m.alt*57.2957795131
+    azMoon=m.az*DEGREES_PER_RADIAN
+    elMoon=m.alt*DEGREES_PER_RADIAN
 ##    print "Moon:         %7.2f  %7.2f" % (azMoon,elMoon)
-##    print "Sun:",s.dec*57.2957795131,"   Moon:",m.dec*57.2957795131    
+##    print "Sun:",s.dec*DEGREES_PER_RADIAN,"   Moon:",m.dec*DEGREES_PER_RADIAN    
     psr = ephem.FixedBody()
     psr._ra = ephem.hours('03:29:11')
     psr._dec = ephem.degrees('54:24:37')
     psr._epoch="1950/1/1 00:00:00"
     psr.compute(telescope)
-    azPSR=psr.az*57.2957795131
-    elPSR=psr.alt*57.29577951
+    azPSR=psr.az*DEGREES_PER_RADIAN
+    elPSR=psr.alt*DEGREES_PER_RADIAN
 ##    print "PSR B0329+54: %7.2f  %7.2f" % (azPSR,elPSR)
 
     cas = ephem.FixedBody()
@@ -287,53 +313,52 @@ def track():
     cas._dec = ephem.degrees('58:48:54')
     cas._epoch="2000/1/1 00:00:00"
     cas.compute(telescope)
-    azCAS=cas.az*57.2957795131
-    elCAS=cas.alt*57.29577951
+    azCAS=cas.az*DEGREES_PER_RADIAN
+    elCAS=cas.alt*DEGREES_PER_RADIAN
 
     cyg = ephem.FixedBody()
     cyg._ra = ephem.hours('19:59:28')
     cyg._dec = ephem.degrees('40:44:01')
     cyg._epoch="2000/1/1 00:00:00"
     cyg.compute(telescope)
-    azCYG=cyg.az*57.2957795131
-    elCYG=cyg.alt*57.29577951
+    azCYG=cyg.az*DEGREES_PER_RADIAN
+    elCYG=cyg.alt*DEGREES_PER_RADIAN
 
     leo = ephem.FixedBody()
     leo._ra = ephem.hours('09:30:00')
     leo._dec = ephem.degrees('30:00:00')
     leo._epoch="2000/1/1 00:00:00"
     leo.compute(telescope)
-    azLEO=leo.az*57.2957795131
-    elLEO=leo.alt*57.29577951
+    azLEO=leo.az*DEGREES_PER_RADIAN
+    elLEO=leo.alt*DEGREES_PER_RADIAN
 
     sgr = ephem.FixedBody()
     sgr._ra = ephem.hours('17:45:12')
     sgr._dec = ephem.degrees('-28:43:00')
     sgr._epoch="2000/1/1 00:00:00"
     sgr.compute(telescope)
-    azSGR=sgr.az*57.2957795131
-    elSGR=sgr.alt*57.29577951
+    azSGR=sgr.az*DEGREES_PER_RADIAN
+    elSGR=sgr.alt*DEGREES_PER_RADIAN
 
     tau = ephem.FixedBody()
     tau._ra = ephem.hours('05:34:32')
     tau._dec = ephem.degrees('22:00:52')
     tau._epoch="2000/1/1 00:00:00"
     tau.compute(telescope)
-    azTAU=tau.az*57.2957795131
-    elTAU=tau.alt*57.29577951
+    azTAU=tau.az*DEGREES_PER_RADIAN
+    elTAU=tau.alt*DEGREES_PER_RADIAN
 
     vir = ephem.FixedBody()
     vir._ra = ephem.hours('12:30:49')
     vir._dec = ephem.degrees('12:23:28')
     vir._epoch="2000/1/1 00:00:00"
     vir.compute(telescope)
-    azVIR=vir.az*57.2957795131
-    elVIR=vir.alt*57.29577951
+    azVIR=vir.az*DEGREES_PER_RADIAN
+    elVIR=vir.alt*DEGREES_PER_RADIAN
 
 #------------------------------------------------------ update
 def update():
-    global root_geom,isec0,naz0,nel0,c,c2,azreq,elreq,azreq0,azSun,elSun, \
-        azMoon,elMoon,azPSR,elPSR,nWriteToFile0,f1,azNow,elNow,running, \
+    global root_geom,celestialBodies,isec0,naz0,nel0,c,c2,azreq,elreq,azreq0,nWriteToFile0,f1,azNow,elNow,running, \
         stream,s1,s2,s4,n1,n2,n4,azmove,elmove
     
     # nRun from "Enable A/D" checkbutton
@@ -354,47 +379,27 @@ def update():
         t=t + '\nLST: ' + lst[0:8]
         utclab.configure(text=t)
         s=rotor.read(40)
-        track()                                 #Recompute az,el
-        # azreq and elreq are "manual mode" inputs
+        #track()                                 #Recompute az,el !!SHOULD NOW BE UNUSED!!
+        # default: azreq and elreq are "manual mode" inputs
         el=elreq
         az=azreq
-        # get radiobutton setting
+        # Set radiobutton setting
         i=ntrack.get()
-        if i==1:                                #Manual
+        # Find desired body
+        if i=="Manual":
+            el=elreq
             az=azreq
-        elif i==2:                              #Moon
-            az=azMoon
-            el=elMoon
-        elif i==3:                              #Sun
-            az=azSun
-            el=elSun
-        elif i==4:                              #PSR 0329+54
-            az=azPSR
-            el=elPSR
-        elif i==5:                              #W3CCX/B
+        elif i=="W3CCX/B":                      #W3CCX/B
             az=227
             el=0
-        elif i==6:                              #Stow
+        elif i=="Stow":                       #Stow
             az=150
             el=20
-        elif i==7:                              #Cas A
-            az=azCAS
-            el=elCAS
-        elif i==8:                              #Cyg A
-            az=azCYG
-            el=elCYG
-        elif i==9:                              #Cold Sky
-            az=azLEO
-            el=elLEO
-        elif i==10:                             #Sgr A
-            az=azSGR
-            el=elSGR
-        elif i==11:                             #Tau A
-            az=azTAU
-            el=elTAU
-        elif i==12:                             #Vir A
-            az=azVIR
-            el=elVIR
+        elif i in celestialBodies:            # Celestial body in dictionary
+            telescope.date = ephem.now()
+            celestialBodies[i].compute(telescope)
+            az=celestialBodies[i].az * DEGREES_PER_RADIAN
+            az=celestialBodies[i].alt * DEGREES_PER_RADIAN
         else:                                   #From azel.dat
             try:
                 az=float(s[i-2][9:14])
@@ -402,31 +407,10 @@ def update():
             except:
                 az=naz0
                 el=nel0
-
-        # Update red arrow on display
-        naz=nint(az)
-        if naz!=naz0:
-            naz0=naz
-            x=75*math.sin(az/57.2957795)
-            y=-75*math.cos(az/57.2957795)
-            x1=x0-x
-            x2=x0+x
-            y1=y0-y
-            y2=y0+y
-            graph1.delete(c)
-            c=graph1.create_line(x1,y1,x2,y2,width=4,arrow='last',
-                fill='red',tags='azpointer')
-
-        nel=nint(el)
-        if el!=nel0:
-            nel0=nel
-            graph2.delete(c2)
-            y=220 - nel*(200.0/80.0)
-            c2=graph2.create_line(25,y,32,y,fill='red',width=4)
         
         # Offset radio buttons
         eloff=float(offset.get())
-        azoff=eloff/math.cos(el/57.2957795)
+        azoff=eloff/math.cos(el/DEGREES_PER_RADIAN)
         noff=noffset.get()
         if nThreePoint.get():
             n=(int(time.clock())/15) % 4
@@ -501,7 +485,29 @@ def update():
         t0="%7.1f  %d %7.1f  %d  %d" % (azNow,azmove,elNow,elmove,noffset.get())
         f0.seek(0)
         f0.write(t0+'\n')
+        
+        # Update red arrow on display
+        naz=nint(az)
+        if naz!=naz0:
+            naz0=naz
+            x=75*math.sin(az/DEGREES_PER_RADIAN)
+            y=-75*math.cos(az/DEGREES_PER_RADIAN)
+            x1=x0-x
+            x2=x0+x
+            y1=y0-y
+            y2=y0+y
+            graph1.delete(c)
+            c=graph1.create_line(x1,y1,x2,y2,width=4,arrow='last',
+                fill='red',tags='azpointer')
 
+        nel=nint(el)
+        if el!=nel0:
+            nel0=nel
+            graph2.delete(c2)
+            y=220 - nel*(200.0/80.0)
+            c2=graph2.create_line(25,y,32,y,fill='red',width=4)
+        
+        # Write to log if checkbox for "Write to File" is enabled
         if nWriteToFile.get():
             if nWriteToFile0==0:
                 t=str(int(time.clock()))
@@ -517,7 +523,7 @@ def update():
             if nWriteToFile0==1:
                 f1.close()
         nWriteToFile0=nWriteToFile.get()
-
+    # End section repeated every second
     root_geom=root.geometry()
     graph1.after(100,update)
 
@@ -553,30 +559,30 @@ ntrack.set(1)
 group3=Pmw.Group(frame,tag_text='Pointing')
 group3.pack(fill=BOTH,expand=1,padx=6,pady=6)
 Radiobutton(group3.interior(),text='Manual',anchor=W,variable=ntrack, \
-    value=1,command=disable_move).grid(row=0,column=0,sticky=W,padx=5)
+    value='Manual',command=disable_move).grid(row=0,column=0,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='Moon',anchor=W,variable=ntrack, \
-    value=2,command=disable_move).grid(row=0,column=1,sticky=W,padx=5)
+    value='Moon',command=disable_move).grid(row=0,column=1,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='Sun',anchor=W,variable=ntrack, \
-    value=3,command=disable_move).grid(row=0,column=2,sticky=W,padx=5)
+    value='Sun',command=disable_move).grid(row=0,column=2,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='0329+54',anchor=W,variable=ntrack, \
-    value=4,command=disable_move).grid(row=0,column=3,sticky=W,padx=5)
+    value="PSR B0329+54",command=disable_move).grid(row=0,column=3,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='W3CCX/B',anchor=W,variable=ntrack, \
-    value=5,command=disable_move).grid(row=0,column=4,sticky=W,padx=5)
+    value='W3CCX/B',command=disable_move).grid(row=0,column=4,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='Stow',anchor=W,variable=ntrack, \
-    value=6,command=disable_move).grid(row=0,column=5,sticky=W,padx=5)
+    value='Stow',command=disable_move).grid(row=0,column=5,sticky=W,padx=5)
 
 Radiobutton(group3.interior(),text='Cas',anchor=W,variable=ntrack, \
-    value=7,command=disable_move).grid(row=1,column=0,sticky=W,padx=5)
+    value="Cassiopeia A",command=disable_move).grid(row=1,column=0,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='Cyg',anchor=W,variable=ntrack, \
-    value=8,command=disable_move).grid(row=1,column=1,sticky=W,padx=5)
+    value="Cygnus A",command=disable_move).grid(row=1,column=1,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='Leo',anchor=W,variable=ntrack, \
-    value=9,command=disable_move).grid(row=1,column=2,sticky=W,padx=5)
+    value="Leo",command=disable_move).grid(row=1,column=2,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='Sgr',anchor=W,variable=ntrack, \
-    value=10,command=disable_move).grid(row=1,column=3,sticky=W,padx=5)
+    value="Sagittarius A",command=disable_move).grid(row=1,column=3,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='Tau',anchor=W,variable=ntrack, \
-    value=11,command=disable_move).grid(row=1,column=4,sticky=W,padx=5)
+    value="Taurus A",command=disable_move).grid(row=1,column=4,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='Vir',anchor=W,variable=ntrack, \
-    value=12,command=disable_move).grid(row=1,column=5,sticky=W,padx=5)
+    value="Virgo A",command=disable_move).grid(row=1,column=5,sticky=W,padx=5)
 
 iframe4 = Frame(frame, bd=2, relief=GROOVE)
 graph1=Canvas(iframe4, width=240, height=240,cursor='crosshair')
@@ -587,19 +593,19 @@ graph1.create_oval(x0-r,y0-r,x0+r,y0+r,outline='red',fill='red')
 c=graph1.create_line(x0-1,y0-1,x0+1,y0+1,fill='red')
 
 for i in range(0,360,10):
-    x1=x0 + 90*math.sin(i/57.2957795)
-    y1=y0 - 90*math.cos(i/57.2957795)
-    x2=x0 + 100*math.sin(i/57.2957795)
-    y2=y0 - 100*math.cos(i/57.2957795)
+    x1=x0 + 90*math.sin(i/DEGREES_PER_RADIAN)
+    y1=y0 - 90*math.cos(i/DEGREES_PER_RADIAN)
+    x2=x0 + 100*math.sin(i/DEGREES_PER_RADIAN)
+    y2=y0 - 100*math.cos(i/DEGREES_PER_RADIAN)
     graph1.create_line(x1,y1,x2,y2)
 for i in range(0,360,30):
-    x1=x0 + 80*math.sin(i/57.2957795)
-    y1=y0 - 80*math.cos(i/57.2957795)
-    x2=x0 + 100*math.sin(i/57.2957795)
-    y2=y0 - 100*math.cos(i/57.2957795)
+    x1=x0 + 80*math.sin(i/DEGREES_PER_RADIAN)
+    y1=y0 - 80*math.cos(i/DEGREES_PER_RADIAN)
+    x2=x0 + 100*math.sin(i/DEGREES_PER_RADIAN)
+    y2=y0 - 100*math.cos(i/DEGREES_PER_RADIAN)
     graph1.create_line(x1,y1,x2,y2)
-    x3=x0 + 110*math.sin(i/57.2957795)
-    y3=y0 - 110*math.cos(i/57.2957795)
+    x3=x0 + 110*math.sin(i/DEGREES_PER_RADIAN)
+    y3=y0 - 110*math.cos(i/DEGREES_PER_RADIAN)
     t=str(i)
     graph1.create_text(x3,y3,text=t)
 
