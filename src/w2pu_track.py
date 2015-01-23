@@ -30,26 +30,29 @@ el=0
 el0=-999
 nel0=0
 t0=0.
+# Center of azimuth display dial
 x0=120
 y0=120
 azreq=153
 azreq0=0
 elreq=0
-
 azNow=0
 elNow=0
 azmove=0
 elmove=0
+# Used for db display calculations
 s1=0
 s2=0
 s4=0
 n1=0
 n2=0
 n4=0
+# GUI Checkbox Values
 nThreePoint=IntVar()
 nWriteToFile=IntVar()
 nRun=IntVar()
 nWriteToFile0=0
+
 f1=""
 running=False
 stream=""
@@ -234,6 +237,7 @@ def dot(a, b):
 
 #--------------------------------------------------------- enable_move()
 def enable_move(event=NONE):
+    """Event handler for click event on Stop/Go button"""
     global moveok,t0
     moveok=1-moveok
     if moveok:
@@ -250,6 +254,7 @@ def disable_move(event=NONE):
 
 #-------------------------------------------------------------- nint()
 def nint(x):
+    """Rounds x to the nearest integer"""
     if(x>0):
         return int(x+0.5)
     else:
@@ -257,12 +262,14 @@ def nint(x):
 
 #-------------------------------------------------------------- msgbox()
 def msgbox(t):
+    """Generates and displays a message dialog with text t"""
     msg=Pmw.MessageDialog(root,buttons=('OK',),message_text=t)
     result=msg.activate()
     msg.focus_set()
 
 #------------------------------------------------------ mouse_click_g1
 def mouse_click_g1(event):
+    """Event handler for click event on azimuth display dial"""
     global x0,azreq,t0
     x=event.x - x0
     y=event.y - x0
@@ -272,6 +279,7 @@ def mouse_click_g1(event):
 
 #------------------------------------------------------ mouse_click_g2
 def mouse_click_g2(event):
+    """Event handler for click event on elevtaion display meter"""
     global elreq,t0
     y=event.y
     if y<20: y=20
@@ -409,17 +417,18 @@ def update():
                 el=nel0
         
         # Offset radio buttons
-        eloff=float(offset.get())
+        eloff=float(offset.get()) # Value in offset textbox
         azoff=eloff/math.cos(el/DEGREES_PER_RADIAN)
-        noff=noffset.get()
-        if nThreePoint.get():
+        noff=noffset.get() # ID number for currently selected radio button
+        # Three point scanning mode
+	if nThreePoint.get():
             n=(int(time.clock())/15) % 4
             if n==0: noff=1
             if n==1: noff=2
             if n==2: noff=1
             if n==3: noff=4
             noffset.set(noff)
-    
+        # Determine correct offset
         if noff==2:
             az=az - azoff
         elif noff==3:
@@ -428,8 +437,6 @@ def update():
             az=az + azoff
         elif noff==5:
             el=el-eloff
-        else:
-            pass
 
         # Update "requested" textbox
         naz=nint(az)
@@ -448,9 +455,13 @@ def update():
         # Move the rotors
         set_rotors(az_command,el_command)
         aa,ee,azmove,elmove=getAzEl()
+        # aa = current az
+        # ae = current el
+        # az/elmove = bool is currently moving?
         if aa != -99: azNow=aa
         if ee != -99: elNow=ee
-
+        
+        # dB Display
         pwr=0
         db=0
         if(nRun.get()):
@@ -525,6 +536,7 @@ def update():
         nWriteToFile0=nWriteToFile.get()
     # End section repeated every second
     root_geom=root.geometry()
+    # Loop!
     graph1.after(100,update)
 
 #------------------------------------------------------ Top level frame
@@ -554,6 +566,7 @@ frame1a.pack(side=LEFT)
 noiseLab=Label(group1.interior(), width=12, bd=4, text='0.0 dB',font=(font1,14))
 noiseLab.pack(side=LEFT)
 
+# Radiobuttons for target selection
 ntrack=IntVar()
 ntrack.set(1)
 group3=Pmw.Group(frame,tag_text='Pointing')
@@ -584,20 +597,22 @@ Radiobutton(group3.interior(),text='Tau',anchor=W,variable=ntrack, \
 Radiobutton(group3.interior(),text='Vir',anchor=W,variable=ntrack, \
     value="Virgo A",command=disable_move).grid(row=1,column=5,sticky=W,padx=5)
 
+# Azimuth display dial
 iframe4 = Frame(frame, bd=2, relief=GROOVE)
 graph1=Canvas(iframe4, width=240, height=240,cursor='crosshair')
 graph1.create_oval(20,20,220,220)
 
-r=8
+r=8 # Radius of center circle
 graph1.create_oval(x0-r,y0-r,x0+r,y0+r,outline='red',fill='red')
 c=graph1.create_line(x0-1,y0-1,x0+1,y0+1,fill='red')
-
+# Draw small hash marks
 for i in range(0,360,10):
     x1=x0 + 90*math.sin(i/DEGREES_PER_RADIAN)
     y1=y0 - 90*math.cos(i/DEGREES_PER_RADIAN)
     x2=x0 + 100*math.sin(i/DEGREES_PER_RADIAN)
     y2=y0 - 100*math.cos(i/DEGREES_PER_RADIAN)
     graph1.create_line(x1,y1,x2,y2)
+# Draw large hash marks every 30 deg
 for i in range(0,360,30):
     x1=x0 + 80*math.sin(i/DEGREES_PER_RADIAN)
     y1=y0 - 80*math.cos(i/DEGREES_PER_RADIAN)
@@ -606,24 +621,28 @@ for i in range(0,360,30):
     graph1.create_line(x1,y1,x2,y2)
     x3=x0 + 110*math.sin(i/DEGREES_PER_RADIAN)
     y3=y0 - 110*math.cos(i/DEGREES_PER_RADIAN)
+    # Draw text labels
     t=str(i)
     graph1.create_text(x3,y3,text=t)
-
+# Bind event handlers
 Widget.bind(graph1,"<Button-1>",mouse_click_g1)
 graph1.pack(side=LEFT)
 iframe4.pack(side=LEFT)
 
+# Elevation meter
 graph2=Canvas(frame, width=32, height=240,cursor='crosshair')
 for i in range(0,81,10):
     y=220 - i*(200.0/80.0)
     graph2.create_line(20,y,27,y)
     t=str(i)
     graph2.create_text(10,y,text=t)
+# Bind event handler
 Widget.bind(graph2,"<Button-1>",mouse_click_g2)
 c2=graph2.create_line(25,220,32,220,fill='red',width=4)
 graph2.pack(side=LEFT,padx=20)
 
-noffset=IntVar()
+# Offset widget
+noffset=IntVar() # ID for direction of offset
 iframe5 = Frame(frame, bd=0, relief=FLAT)
 
 group4=Pmw.Group(iframe5,tag_text='Offset')
@@ -641,20 +660,23 @@ Radiobutton(group4.interior(),variable=noffset, \
 noffset.set(1)
 offset=StringVar()
 Entry(group4.interior(),width=5,textvariable=offset).grid(row=4,column=1,pady=1)
-offset.set(' 16.0')
+offset.set(' 16.0') # offset is string with current value of offset textbox
 
+# Requested rotator setting display
 group5=Pmw.Group(iframe5,tag_text='Requested')
 group5.pack(side=TOP,expand=0,padx=6,pady=1)
 azelreq=Label(group5.interior(), bg='black', fg='yellow', width=8, bd=4,
     text='145  0', relief=RIDGE,justify=CENTER, font=(font1,18))
 azelreq.pack(side=TOP,padx=5,pady=1)
 
+# Actual rotator setting display
 group6=Pmw.Group(iframe5,tag_text='Actual')
 group6.pack(side=TOP,expand=0,padx=6,pady=1)
 azelActual=Label(group6.interior(), bg='black', fg='yellow', width=8, bd=4,
     text='145  0', relief=RIDGE,justify=CENTER, font=(font1,18))
 azelActual.pack(side=TOP,padx=5,pady=1)
 
+# Stop/Go button
 move=Button(iframe5,text='Stop/Go',command=enable_move,padx=4,pady=1,bg='red')
 move.pack(side=TOP,pady=5)
 iframe5.pack()
@@ -669,6 +691,7 @@ try:
 except:
     params=""
 
+# Sets window position
 try:
     for i in range(len(params)):
         key,value=params[i].split()
@@ -687,7 +710,7 @@ except:
 # Define and open an audio stream
 p = pyaudio.PyAudio()
 
-graph1.after(100,update)
+graph1.after(100,update) # Starts update loop
 root.title('  W2PU Track')
 root.mainloop()
 
