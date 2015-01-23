@@ -299,83 +299,6 @@ def mouse_click_g2(event):
     ntrack.set('Manual')
     t0=time.clock()
 
-#---------------------------------------------------------- track !!SHOULD BE UNUSED!!
-def track():
-    global azSun,elSun,azMoon,elMoon,azPSR,elPSR,azCAS,elCAS,azCYG,elCYG, \
-               azLEO,elLEO,azSGR,elSGR,azTAU,elTAU,azVIR,elVIR
-    telescope.date = ephem.now()
-    
-##    print 'Behind the date %s is the number %f %f.' % (telescope.date, telescope.date, telescope.date+1.0/86400.0)
-    s = ephem.Sun()
-    s.compute(telescope)
-    # convert to degrees
-    azSun=s.az*DEGREES_PER_RADIAN
-    elSun=s.alt*DEGREES_PER_RADIAN
-##    print "Sun:          %7.2f  %7.2f" % (azSun,elSun)
-
-    m = ephem.Moon()
-    m.compute(telescope)
-    azMoon=m.az*DEGREES_PER_RADIAN
-    elMoon=m.alt*DEGREES_PER_RADIAN
-##    print "Moon:         %7.2f  %7.2f" % (azMoon,elMoon)
-##    print "Sun:",s.dec*DEGREES_PER_RADIAN,"   Moon:",m.dec*DEGREES_PER_RADIAN    
-    psr = ephem.FixedBody()
-    psr._ra = ephem.hours('03:29:11')
-    psr._dec = ephem.degrees('54:24:37')
-    psr._epoch="1950/1/1 00:00:00"
-    psr.compute(telescope)
-    azPSR=psr.az*DEGREES_PER_RADIAN
-    elPSR=psr.alt*DEGREES_PER_RADIAN
-##    print "PSR B0329+54: %7.2f  %7.2f" % (azPSR,elPSR)
-
-    cas = ephem.FixedBody()
-    cas._ra = ephem.hours('23:23:26')
-    cas._dec = ephem.degrees('58:48:54')
-    cas._epoch="2000/1/1 00:00:00"
-    cas.compute(telescope)
-    azCAS=cas.az*DEGREES_PER_RADIAN
-    elCAS=cas.alt*DEGREES_PER_RADIAN
-
-    cyg = ephem.FixedBody()
-    cyg._ra = ephem.hours('19:59:28')
-    cyg._dec = ephem.degrees('40:44:01')
-    cyg._epoch="2000/1/1 00:00:00"
-    cyg.compute(telescope)
-    azCYG=cyg.az*DEGREES_PER_RADIAN
-    elCYG=cyg.alt*DEGREES_PER_RADIAN
-
-    leo = ephem.FixedBody()
-    leo._ra = ephem.hours('09:30:00')
-    leo._dec = ephem.degrees('30:00:00')
-    leo._epoch="2000/1/1 00:00:00"
-    leo.compute(telescope)
-    azLEO=leo.az*DEGREES_PER_RADIAN
-    elLEO=leo.alt*DEGREES_PER_RADIAN
-
-    sgr = ephem.FixedBody()
-    sgr._ra = ephem.hours('17:45:12')
-    sgr._dec = ephem.degrees('-28:43:00')
-    sgr._epoch="2000/1/1 00:00:00"
-    sgr.compute(telescope)
-    azSGR=sgr.az*DEGREES_PER_RADIAN
-    elSGR=sgr.alt*DEGREES_PER_RADIAN
-
-    tau = ephem.FixedBody()
-    tau._ra = ephem.hours('05:34:32')
-    tau._dec = ephem.degrees('22:00:52')
-    tau._epoch="2000/1/1 00:00:00"
-    tau.compute(telescope)
-    azTAU=tau.az*DEGREES_PER_RADIAN
-    elTAU=tau.alt*DEGREES_PER_RADIAN
-
-    vir = ephem.FixedBody()
-    vir._ra = ephem.hours('12:30:49')
-    vir._dec = ephem.degrees('12:23:28')
-    vir._epoch="2000/1/1 00:00:00"
-    vir.compute(telescope)
-    azVIR=vir.az*DEGREES_PER_RADIAN
-    elVIR=vir.alt*DEGREES_PER_RADIAN
-
 #------------------------------------------------------ update
 def update():
     global root_geom,celestialBodies,isec0,naz0,nel0,c,c2,azreq,elreq,azreq0,nWriteToFile0,f1,azNow,elNow,running, \
@@ -399,7 +322,6 @@ def update():
         t=t + '\nLST: ' + lst[0:8]
         utclab.configure(text=t) # Update clock label
         s=rotor.read(40)
-        #track()                                 #Recompute az,el !!SHOULD NOW BE UNUSED!!
         # default: azreq and elreq are "manual mode" inputs
         el=elreq
         az=azreq
