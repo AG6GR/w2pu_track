@@ -6,7 +6,7 @@ class Rotator :
 		
 		Args:
 			port: (String) the serial port corresponding to the antenna rotator."""
-		self.rotor = serial.Serial(port = port, baudrate = 9600, bytesize = EIGHTBITS, timeout = 0.1)
+		self.rotor = serial.Serial(port = port, baudrate = 9600, timeout = 0.1)
 		
 	def __del__(self):
 		if (self.rotor != null) :
@@ -17,9 +17,9 @@ class Rotator :
 		
 		Returns:
 			(float) Current azimuth in degrees."""
-		self.rotor.flushInput();
 		response = ""
 		while (len(response) < 4) :
+			self.rotor.flushInput();
 			# Request Azimuth mode
 			self.rotor.write("A\r")
 			# Read response, example response: "A\r\nA=150.5 S=6 S\r\n"
@@ -38,9 +38,9 @@ class Rotator :
 		
 		Returns:
 			(float) Current elevation in degrees."""
-		self.rotor.flushInput();
 		response = ""
 		while (len(response) < 4) :
+			self.rotor.flushInput();
 			# Request Elevation mode
 			self.rotor.write("E\r")
 			# Read response, example response: "A\r\nA=150.5 S=6 S\r\n"
@@ -125,6 +125,9 @@ class Rotator :
 		print "Stopping...\r\n"
 		self.rotor.flushInput();
 		self.rotor.flushOutput();
+		self.rotor.write("S\r");
+		print self.rotor.readline()
+		# Send twice for redundancy, ensures that both axises stop
 		self.rotor.write("S\r");
 		print self.rotor.readline()
 		return
