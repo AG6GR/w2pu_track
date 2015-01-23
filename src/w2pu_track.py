@@ -346,7 +346,7 @@ def update():
             telescope.date = ephem.now()
             celestialBodies[i].compute(telescope)
             az=celestialBodies[i].az * DEGREES_PER_RADIAN
-            az=celestialBodies[i].alt * DEGREES_PER_RADIAN
+            el=celestialBodies[i].alt * DEGREES_PER_RADIAN
         else:                                   #From azel.dat
             try:
                 az=float(s[i-2][9:14])
@@ -360,7 +360,7 @@ def update():
         azoff=eloff/math.cos(el/DEGREES_PER_RADIAN)
         noff=noffset.get() # ID number for currently selected radio button
         # Three point scanning mode
-	if nThreePoint.get():
+        if nThreePoint.get():
             n=(int(time.clock())/15) % 4
             if n==0: noff=1
             if n==1: noff=2
@@ -506,7 +506,7 @@ noiseLab=Label(group1.interior(), width=12, bd=4, text='0.0 dB',font=(font1,14))
 noiseLab.pack(side=LEFT)
 
 # Radiobuttons for target selection
-ntrack=IntVar()
+ntrack=StringVar()
 ntrack.set('Manual')
 group3=Pmw.Group(frame,tag_text='Pointing')
 group3.pack(fill=BOTH,expand=1,padx=6,pady=6)
