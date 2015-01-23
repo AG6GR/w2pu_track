@@ -1,5 +1,6 @@
 #--------------------------------------------------------------  w2pu_track
 from Tkinter import *
+import Pmw, serial, os, time, math, ephem, pyaudio
 from array import array
 from itertools import imap
 from operator import mul
@@ -81,35 +82,35 @@ celestialBodies["PSR B0329+54"]._ra = ephem.hours('03:29:11')
 celestialBodies["PSR B0329+54"]._dec = ephem.degrees('54:24:37')
 celestialBodies["PSR B0329+54"]._epoch="1950/1/1 00:00:00"
 # Cassiopeia A
-celestealBodies["Cassiopeia A"] = ephem.FixedBody()
-celestealBodies["Cassiopeia A"]._ra = ephem.hours('23:23:26')
-celestealBodies["Cassiopeia A"]._dec = ephem.degrees('58:48:54')
-celestealBodies["Cassiopeia A"]._epoch="2000/1/1 00:00:00"
+celestialBodies["Cassiopeia A"] = ephem.FixedBody()
+celestialBodies["Cassiopeia A"]._ra = ephem.hours('23:23:26')
+celestialBodies["Cassiopeia A"]._dec = ephem.degrees('58:48:54')
+celestialBodies["Cassiopeia A"]._epoch="2000/1/1 00:00:00"
 # Cygnus
-celestealBodies["Cygnus A"] = ephem.FixedBody()
-celestealBodies["Cygnus A"]._ra = ephem.hours('19:59:28')
-celestealBodies["Cygnus A"]._dec = ephem.degrees('40:44:01')
-celestealBodies["Cygnus A"]._epoch="2000/1/1 00:00:00"
+celestialBodies["Cygnus A"] = ephem.FixedBody()
+celestialBodies["Cygnus A"]._ra = ephem.hours('19:59:28')
+celestialBodies["Cygnus A"]._dec = ephem.degrees('40:44:01')
+celestialBodies["Cygnus A"]._epoch="2000/1/1 00:00:00"
 # Leo
-celestealBodies["Leo"] = ephem.FixedBody()
-celestealBodies["Leo"]._ra = ephem.hours('09:30:00')
-celestealBodies["Leo"]._dec = ephem.degrees('30:00:00')
-celestealBodies["Leo"]._epoch="2000/1/1 00:00:00"
+celestialBodies["Leo"] = ephem.FixedBody()
+celestialBodies["Leo"]._ra = ephem.hours('09:30:00')
+celestialBodies["Leo"]._dec = ephem.degrees('30:00:00')
+celestialBodies["Leo"]._epoch="2000/1/1 00:00:00"
 # Sagittarius
-celestealBodies["Sagittarius A"] = ephem.FixedBody()
-celestealBodies["Sagittarius A"]._ra = ephem.hours('17:45:12')
-celestealBodies["Sagittarius A"]._dec = ephem.degrees('-28:43:00')
-celestealBodies["Sagittarius A"]._epoch="2000/1/1 00:00:00"
+celestialBodies["Sagittarius A"] = ephem.FixedBody()
+celestialBodies["Sagittarius A"]._ra = ephem.hours('17:45:12')
+celestialBodies["Sagittarius A"]._dec = ephem.degrees('-28:43:00')
+celestialBodies["Sagittarius A"]._epoch="2000/1/1 00:00:00"
 # Taurus
-celestealBodies["Taurus A"] = ephem.FixedBody()
-celestealBodies["Taurus A"]._ra = ephem.hours('05:34:32')
-celestealBodies["Taurus A"]._dec = ephem.degrees('22:00:52')
-celestealBodies["Taurus A"]._epoch="2000/1/1 00:00:00"
+celestialBodies["Taurus A"] = ephem.FixedBody()
+celestialBodies["Taurus A"]._ra = ephem.hours('05:34:32')
+celestialBodies["Taurus A"]._dec = ephem.degrees('22:00:52')
+celestialBodies["Taurus A"]._epoch="2000/1/1 00:00:00"
 # Virgo
-celestealBodies["Virgo A"] = ephem.FixedBody()
-celestealBodies["Virgo A"]._ra = ephem.hours('12:30:49')
-celestealBodies["Virgo A"]._dec = ephem.degrees('12:23:28')
-celestealBodies["Virgo A"]._epoch="2000/1/1 00:00:00"
+celestialBodies["Virgo A"] = ephem.FixedBody()
+celestialBodies["Virgo A"]._ra = ephem.hours('12:30:49')
+celestialBodies["Virgo A"]._dec = ephem.degrees('12:23:28')
+celestialBodies["Virgo A"]._epoch="2000/1/1 00:00:00"
 
 # Open azel.dat in writing mode
 # Contains last known az/el position of rotators
