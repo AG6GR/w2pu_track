@@ -24,7 +24,7 @@ az=0
 az0=-999
 az00=-999
 c2=0
-moveok=0
+moveok=False
 naz0=az0
 el=0
 el0=-999
@@ -239,18 +239,22 @@ def dot(a, b):
 def enable_move(event=NONE):
     """Event handler for click event on Stop/Go button"""
     global moveok,t0
-    moveok=1-moveok
     if moveok:
-        move.configure(bg='green')
-        t0=time.clock()
+        # Was enabled, now stopped
+        disable_move(event)
     else:
-        move.configure(bg='red')
+        # Was stopped, now enabled
+        moveok = True
+        moveButton.configure(bg='green')
+        t0=time.clock()
 
 #--------------------------------------------------------- disable_move()
 def disable_move(event=NONE):
+    """Called after radio button is changed"""
     global moveok
-    moveok=0
-    move.configure(bg='red')
+    moveok = False
+    moveButton.configure(bg='red')
+    #TODO: stoprotor()
 
 #-------------------------------------------------------------- nint()
 def nint(x):
@@ -271,20 +275,28 @@ def msgbox(t):
 def mouse_click_g1(event):
     """Event handler for click event on azimuth display dial"""
     global x0,azreq,t0
+    # Find and set the new requested azimuth
     x=event.x - x0
     y=event.y - x0
     azreq=nint(DEGREES_PER_RADIAN*math.atan2(x,-y))
     if(azreq<0): azreq=azreq+360
+    # Disable movement, change to manual mode
+    disable_move(event)
+    ntrack.set('Manual')
     t0=time.clock()
 
 #------------------------------------------------------ mouse_click_g2
 def mouse_click_g2(event):
-    """Event handler for click event on elevtaion display meter"""
+    """Event handler for click event on elevation display meter"""
     global elreq,t0
+    # Find and set the new requested elevation
     y=event.y
     if y<20: y=20
     if y>220: y=220
     elreq = (220-y)*(80.0/200.0)
+    # Disable movement, change to manual mode
+    disable_move(event)
+    ntrack.set('Manual')
     t0=time.clock()
 
 #---------------------------------------------------------- track !!SHOULD BE UNUSED!!
@@ -385,7 +397,7 @@ def update():
         t=time.strftime('%Y %b %d\nUTC: %H:%M:%S',utc)
         if(lst[1]==':'): lst='0'+lst
         t=t + '\nLST: ' + lst[0:8]
-        utclab.configure(text=t)
+        utclab.configure(text=t) # Update clock label
         s=rotor.read(40)
         #track()                                 #Recompute az,el !!SHOULD NOW BE UNUSED!!
         # default: azreq and elreq are "manual mode" inputs
@@ -568,7 +580,7 @@ noiseLab.pack(side=LEFT)
 
 # Radiobuttons for target selection
 ntrack=IntVar()
-ntrack.set(1)
+ntrack.set('Manual')
 group3=Pmw.Group(frame,tag_text='Pointing')
 group3.pack(fill=BOTH,expand=1,padx=6,pady=6)
 Radiobutton(group3.interior(),text='Manual',anchor=W,variable=ntrack, \
@@ -677,8 +689,8 @@ azelActual=Label(group6.interior(), bg='black', fg='yellow', width=8, bd=4,
 azelActual.pack(side=TOP,padx=5,pady=1)
 
 # Stop/Go button
-move=Button(iframe5,text='Stop/Go',command=enable_move,padx=4,pady=1,bg='red')
-move.pack(side=TOP,pady=5)
+moveButton=Button(iframe5,text='Stop/Go',command=enable_move,padx=4,pady=1,bg='red')
+moveButton.pack(side=TOP,pady=5)
 iframe5.pack()
 frame.pack()
 
