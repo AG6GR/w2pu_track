@@ -239,6 +239,7 @@ def dot(a, b):
 def enable_move(event=NONE):
     """Event handler for click event on Stop/Go button"""
     global moveok,t0
+    print "enable_move() called"
     if moveok:
         # Was enabled, now stopped
         disable_move(event)
@@ -252,6 +253,7 @@ def enable_move(event=NONE):
 def disable_move(event=NONE):
     """Called after radio button is changed"""
     global moveok
+    print "disable_move()"
     moveok = False
     moveButton.configure(bg='red')
     #TODO: stoprotor()
@@ -275,6 +277,7 @@ def msgbox(t):
 def mouse_click_g1(event):
     """Event handler for click event on azimuth display dial"""
     global x0,azreq,t0
+    print "Detected click on azimuth dial"
     # Find and set the new requested azimuth
     x=event.x - x0
     y=event.y - x0
@@ -289,6 +292,7 @@ def mouse_click_g1(event):
 def mouse_click_g2(event):
     """Event handler for click event on elevation display meter"""
     global elreq,t0
+    print "Detected click on elevation dial"
     # Find and set the new requested elevation
     y=event.y
     if y<20: y=20
