@@ -13,7 +13,7 @@ STATION = "W2PU"
 COMPORT = "COM1"
 DEGREES_PER_RADIAN = 57.2957795131
 
-#Initialize MegaWidget
+#Initialize Tkinter, Pmw MegaWidgets
 root = Tk()
 appdir=os.getcwd()
 root_geom=""

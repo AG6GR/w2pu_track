@@ -1,3 +1,6 @@
+from Tkinter import *
+import Pmw 
+
 class Rotator :
 	"""Class for serial control of RC2800PX antenna rotators"""
 
