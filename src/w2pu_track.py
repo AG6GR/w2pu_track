@@ -333,6 +333,7 @@ def update():
         # Set radiobutton setting
         i=ntrack.get()
         # Find desired body
+        telescope.date = ephem.now()
         if i=="Manual":
             el=elreq
             az=azreq
@@ -343,7 +344,6 @@ def update():
             az=150
             el=20
         elif i in celestialBodies:            # Celestial body in dictionary
-            telescope.date = ephem.now()
             celestialBodies[i].compute(telescope)
             az=celestialBodies[i].az * DEGREES_PER_RADIAN
             el=celestialBodies[i].alt * DEGREES_PER_RADIAN
