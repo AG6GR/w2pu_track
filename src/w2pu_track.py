@@ -4,6 +4,7 @@ import Pmw, serial, os, time, math, ephem, pyaudio
 from array import array
 from itertools import imap
 from operator import mul
+import Rotator
 
 CHUNK_SIZE = 12000
 FORMAT = pyaudio.paInt16
@@ -18,6 +19,12 @@ root = Tk()
 appdir=os.getcwd()
 root_geom=""
 font1='Helvetica'
+
+# Initialize Serial Communications
+if sys.platform=="win32":
+    rotor = Rotator(COMPORT)
+else:
+    rotor = Rotator("/dev/ttyS0")
 
 #Declare variables
 isec0=0
@@ -57,12 +64,6 @@ nWriteToFile0=0
 f1=""
 running=False
 stream=""
-
-# Initialize Serial Communications
-if sys.platform=="win32":
-    rotor=serial.Serial(COMPORT,9600,timeout=0.1)          #Rotor control port
-else:
-    rotor=serial.Serial("/dev/ttyS0",9600,timeout=0.1)    #Rotor control port
 
 # Define station location for pyephem
 telescope = ephem.Observer()
@@ -306,7 +307,7 @@ def mouse_click_g2(event):
 
 #------------------------------------------------------ update
 def update():
-    global root_geom,celestialBodies,isec0,naz0,nel0,c,c2,azreq,elreq,azreq0,nWriteToFile0,f1,azNow,elNow,running, \
+    global root_geom,celestialBodies, rotor, isec0,naz0,nel0,c,c2,azreq,elreq,azreq0,nWriteToFile0,f1,azNow,elNow,running, \
         stream,s1,s2,s4,n1,n2,n4,azmove,elmove
     
     # nRun from "Enable A/D" checkbutton
@@ -320,40 +321,43 @@ def update():
     isec=utc[5]
     if isec != isec0:                           #Do once per second
         isec0=isec
+        
+        # Update clock label
         lst=str(telescope.sidereal_time())
         # lst format : "hh:mm:ss.ss"
-        t=time.strftime('%Y %b %d\nUTC: %H:%M:%S',utc)
+        t = time.strftime('%Y %b %d\nUTC: %H:%M:%S',utc)
         if(lst[1]==':'): lst='0'+lst
-        t=t + '\nLST: ' + lst[0:8]
-        utclab.configure(text=t) # Update clock label
-        s=rotor.read(40)
+        t = t + '\nLST: ' + lst[0:8]
+        utclab.configure(text = t) 
+        
+        #s=rotor.read(40)
         # default: azreq and elreq are "manual mode" inputs
-        el=elreq
-        az=azreq
-        # Set radiobutton setting
-        i=ntrack.get()
+        el = elreq
+        az = azreq
+        # Find radiobutton setting
+        i = ntrack.get()
         # Find desired body
         telescope.date = ephem.now()
-        if i=="Manual":
-            el=elreq
-            az=azreq
-        elif i=="W3CCX/B":                      #W3CCX/B
+        if i == "Manual":
+            el = elreq
+            az = azreq
+        elif i == "W3CCX/B":                      #W3CCX/B
             az=227
             el=0
-        elif i=="Stow":                       #Stow
+        elif i == "Stow":                       #Stow
             az=150
             el=20
         elif i in celestialBodies:            # Celestial body in dictionary
             celestialBodies[i].compute(telescope)
             az=celestialBodies[i].az * DEGREES_PER_RADIAN
             el=celestialBodies[i].alt * DEGREES_PER_RADIAN
-        else:                                   #From azel.dat
-            try:
-                az=float(s[i-2][9:14])
-                el=float(s[i-2][15:20])
-            except:
-                az=naz0
-                el=nel0
+        #else:                                #From azel.dat (NOTE: does not seem to access azel.dat)
+        #    try:
+        #        az=float(s[i-2][9:14])
+        #        el=float(s[i-2][15:20])
+        #    except:
+        #       az=naz0
+        #       el=nel0
         
         # Offset radio buttons
         eloff=float(offset.get()) # Value in offset textbox
@@ -392,8 +396,11 @@ def update():
         if el_command<0: el_command=0
         
         # Move the rotors
-        set_rotors(az_command,el_command)
-        aa,ee,azmove,elmove=getAzEl()
+        rotor.setPosition(az_command,el_command)
+        aa = rotor.getAzimuth()
+        ee = rotor.getElevation()
+        azmove = rotor.getSpeed("A") > 0
+        elmove = rotor.getSpeed("E") > 0
         # aa = current az
         # ae = current el
         # az/elmove = bool is currently moving?

@@ -1,6 +1,3 @@
-from Tkinter import *
-import Pmw 
-
 class Rotator :
 	"""Class for serial control of RC2800PX antenna rotators"""
 
@@ -142,6 +139,7 @@ class Rotator :
 # Test code
 if __name__ == '__main__':
 	import serial
-	
+	from Tkinter import *
+	import Pmw 
 	rotor = Rotator("COM1")
 	print rotor.printPosition()
