@@ -1,6 +1,8 @@
 import urllib2
 import ephem
 import math
+from Tkinter import *
+import Pmw
 
 TLEURL = "http://www.amsat.org/amsat/ftp/keps/current/nasabare.txt"
 
@@ -29,6 +31,12 @@ def printPosition(station, satellites) :
 	return
 	
 # Main
+
+#Initialize Tkinter, Pmw MegaWidgets
+root = Tk()
+root_geom=""
+font1='Helvetica'
+
 satellites = dict()
 satellites.update(loadTLE(TLEURL))
 print "Currently loaded " + str(len(satellites)) + " satellites"
@@ -40,3 +48,18 @@ station.lat = ephem.degrees('40.35417')
 station.elevation = 43
 
 printPosition(station, satellites)
+
+# Define dialog
+
+dialog = Pmw.ComboBoxDialog(root,
+	title = 'Satellite Selection',
+	buttons = ('OK','Cancel'),
+	defaultbutton = 'OK',
+	combobox_labelpos = 'n',
+	label_text = 'Select satellite to track',
+	scrolledlist_items = (satellites.keys()))
+
+# Display dialog
+buttonClicked = dialog.activate()
+dialog.focus_force()
+print dialog.get()
