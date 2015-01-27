@@ -361,7 +361,6 @@ def update():
 def mainUpdateLoop() :
     global root
     """Actions performed once per second"""
-    print "mainUpdateLoop()"
     update()
     root.after(1000,mainUpdateLoop)
 
