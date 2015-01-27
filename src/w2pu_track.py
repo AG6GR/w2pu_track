@@ -191,7 +191,7 @@ def mouse_click_el(event):
 def update():
     global root_geom, celestialBodies, rotor, naz0,nel0, azDisplayRedLine, elDisplayRedLine, \
     azreq,elreq,nWriteToFile0,logFile,running, stream
-    
+    print "update()"
     # nRun from "Enable A/D" checkbutton
     if(not running and nRun.get()):
     	# p is pyAudio stream
@@ -367,6 +367,7 @@ def update():
 def mainUpdateLoop() :
     global root
     """Actions performed once per second"""
+    print "mainUpdateLoop()"
     update()
     root.after(1000,mainUpdateLoop)
 
