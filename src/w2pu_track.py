@@ -27,22 +27,16 @@ else:
     rotor = Rotator("/dev/ttyS0")
 
 #Declare variables
-az=0
-az0=-999
-az00=-999
 moveok=False
-naz0=az0
-el=0
-el0=-999
+naz0=-999
 nel0=0
-t0=0.
+t0=0. # Possibly can be removed, seems to be repurposed as string in update()
 # Center of azimuth display dial
 x0=120
 y0=120
-azreq=153
-elreq=0
-azmove=0
-elmove=0
+# Manual mode requested position
+azreq=150
+elreq=20
 # Used for db display calculations
 s1=0
 s2=0
@@ -55,8 +49,9 @@ nThreePoint=IntVar()
 nWriteToFile=IntVar()
 nRun=IntVar()
 nWriteToFile0=0
-
+# Log File object
 logFile=""
+# Related to pyAudio stream
 running=False
 stream=""
 
@@ -191,7 +186,6 @@ def mouse_click_el(event):
 def update():
     global root_geom, celestialBodies, rotor, naz0,nel0, azDisplayRedLine, elDisplayRedLine, \
     azreq,elreq,nWriteToFile0,logFile,running, stream
-    print "update()"
     # nRun from "Enable A/D" checkbutton
     if(not running and nRun.get()):
     	# p is pyAudio stream
