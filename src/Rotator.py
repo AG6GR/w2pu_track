@@ -1,3 +1,4 @@
+import serial
 class Rotator :
 	"""Class for serial control of RC2800PX antenna rotators"""
 
@@ -53,7 +54,7 @@ class Rotator :
 		except:
 			# Possible communications error, try again
 			return self.getElevation()
-	def getSpeed(axis) :
+	def getSpeed(self, axis) :
 		"""Returns the current speed for the given axis (A or E).
 		
 		Args:

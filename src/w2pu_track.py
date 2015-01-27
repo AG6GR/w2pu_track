@@ -4,7 +4,7 @@ import Pmw, serial, os, time, math, ephem, pyaudio
 from array import array
 from itertools import imap
 from operator import mul
-import Rotator
+from Rotator import Rotator
 
 CHUNK_SIZE = 12000
 FORMAT = pyaudio.paInt16
@@ -396,17 +396,20 @@ def update():
         if el_command<0: el_command=0
         
         # Move the rotors
-        rotor.setPosition(az_command,el_command)
+        if moveOk :
+            rotor.setPosition(az_command,el_command)
+            
+        # Update current position display
         aa = rotor.getAzimuth()
         ee = rotor.getElevation()
-        azmove = rotor.getSpeed("A") > 0
+        azmove = (rotor.getSpeed("A")) > 0
         elmove = rotor.getSpeed("E") > 0
         # aa = current az
         # ae = current el
         # az/elmove = bool is currently moving?
         if aa != -99: azNow=aa
         if ee != -99: elNow=ee
-        
+        azelActual.configure(text = (str(nint(aa)) + '  ' + str(nint(ee))))
         # dB Display
         pwr=0
         db=0
