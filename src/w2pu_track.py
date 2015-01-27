@@ -365,9 +365,10 @@ def update():
     root_geom=root.geometry()
 
 def mainUpdateLoop() :
+    global root
     """Actions performed once per second"""
     update()
-    root.after(1000,update)
+    root.after(1000,mainUpdateLoop)
 
 #------------------------------------------------------ Top level frame
 frame = Frame(root)
