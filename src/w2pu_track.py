@@ -186,8 +186,8 @@ def mouse_click_g2(event):
 
 #------------------------------------------------------ update
 def update():
-    global root_geom, celestialBodies, rotor, naz0,nel0, azDisplayRedLine, elDisplayRedLine, azreq,elreq,nWriteToFile0,logFile,running, \
-        stream
+    global root_geom, celestialBodies, rotor, naz0,nel0, azDisplayRedLine, elDisplayRedLine\
+    azreq,elreq,nWriteToFile0,logFile,running, stream
     
     # nRun from "Enable A/D" checkbutton
     if(not running and nRun.get()):
@@ -203,7 +203,7 @@ def update():
     t = time.strftime('%Y %b %d\nUTC: %H:%M:%S',utc)
     if(lst[1]==':'): lst='0'+lst
     t = t + '\nLST: ' + lst[0:8]
-    utclab.configure(text = t) 
+    utcLabel.configure(text = t) 
     
     #s=rotor.read(40)
     # default: azreq and elreq are "manual mode" inputs
@@ -360,8 +360,11 @@ def update():
     nWriteToFile0=nWriteToFile.get()
     # End section repeated every second
     root_geom=root.geometry()
-    # Loop!
-    graph1.after(100,update)
+
+def mainUpdateLoop() :
+    """Actions performed once per second"""
+    update()
+    root.after(1000,update)
 
 #------------------------------------------------------ Top level frame
 frame = Frame(root)
@@ -377,9 +380,9 @@ cbTxV=IntVar()
 
 group1=Pmw.Group(frame,tag_pyclass=None)
 group1.pack(fill=BOTH,expand=1,padx=6,pady=6)
-utclab=Label(group1.interior(), bg='black', fg='yellow', width=14, bd=4,
+utcLabel=Label(group1.interior(), bg='black', fg='yellow', width=14, bd=4,
     text='UTC: 01:23:45', relief=RIDGE,justify=CENTER, font=(font1,16))
-utclab.pack(side=LEFT,padx=5,pady=5)
+utcLabel.pack(side=LEFT,padx=5,pady=5)
 
 frame1a = Frame(group1.interior(), bd=0, relief=FLAT)
 Checkbutton(frame1a,text="Enable A/D",variable=nRun).pack(side=TOP,anchor=W)
@@ -534,7 +537,7 @@ except:
 # Define and open an audio stream
 p = pyaudio.PyAudio()
 
-graph1.after(100,update) # Starts update loop
+graph1.after(100,mainUpdateLoop) # Starts update loop
 root.title('  W2PU Track')
 root.mainloop()
 
