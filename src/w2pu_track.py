@@ -254,11 +254,11 @@ def enable_move(event=NONE):
 #--------------------------------------------------------- disable_move()
 def disable_move(event=NONE):
     """Called after radio button is changed"""
-    global moveok
+    global moveok, rotor
     print "disable_move()"
     moveok = False
     moveButton.configure(bg='red')
-    #TODO: stoprotor()
+    rotor.stop()
 
 #-------------------------------------------------------------- nint()
 def nint(x):
@@ -396,7 +396,7 @@ def update():
         if el_command<0: el_command=0
         
         # Move the rotors
-        if moveOk :
+        if moveok :
             rotor.setPosition(az_command,el_command)
             
         # Update current position display
