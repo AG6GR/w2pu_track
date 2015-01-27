@@ -209,11 +209,32 @@ def printPosition(station, satellites) :
     return
 #------------------------------------------------------ selectSatellite
 def selectSatellite():
-    global telescope, satellites
+    global telescope, satellites, satSelectDialog, selectedSat
     """Event handler for click on Satellite radio button"""
     disable_move()
-    printPosition(telescope, satellites)
-    print "selectSatellite()"
+    # Calculate current position for each satellite, append to name for display in dialog
+    listSatNames = []
+    station.date = ephem.now()
+    for satname in satellites :
+        satellites[satname].compute(station)
+        altitude = satellites[satname].alt * DEGREES_PER_RADIAN
+        azimuth = satellites[satname].az * DEGREES_PER_RADIAN
+        if altitude > 0 :
+            # Put visible satellites at top of list
+            listSatNames.insert(0, satname + " (" + "{0:.2f}".format(altitude) + ", " 
+                + "{0:.2f}".format(azimuth) + ")")
+        else :
+            listSatNames.append(satname + " (" + "{0:.2f}".format(altitude) + ", " 
+                + "{0:.2f}".format(azimuth) + ")")
+    # Display dialog
+    satSelectDialog.configure(scrolledlist_items = listSatNames)
+    buttonClicked = ""
+    buttonClicked = satSelectDialog.activate()
+    satSelectDialog.focus_force()
+    # Extract name of selected satellite
+    response = satSelectDialog.get()
+    selectedSat.set(response[:(response.find("(") - 1)])
+    print selectedSat.get()
     
 #------------------------------------------------------ update
 def update():
@@ -457,7 +478,9 @@ Radiobutton(group3.interior(),text='Sgr',anchor=W,variable=ntrack, \
     value="Sagittarius A",command=disable_move).grid(row=1,column=3,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='Tau',anchor=W,variable=ntrack, \
     value="Taurus A",command=disable_move).grid(row=1,column=4,sticky=W,padx=5)
-Radiobutton(group3.interior(),text='Satellite',anchor=W,variable=ntrack, \
+selectedSat = StringVar()
+selectedSat.set("Satellite")
+Radiobutton(group3.interior(),text = selectedSat,anchor=W,variable=ntrack, \
     value="Satellite",command=selectSatellite).grid(row=1,column=5,sticky=W,padx=5)
 
 # Azimuth display dial
@@ -545,7 +568,14 @@ moveButton.pack(side=TOP,pady=5)
 iframe5.pack()
 frame.pack()
 
-elreq=0
+# Define satellite selectiondialog
+satSelectDialog = Pmw.ComboBoxDialog(root,
+    title = 'Satellite Selection',
+    buttons = ('OK','Cancel'),
+    defaultbutton = 'OK',
+    combobox_labelpos = 'n',
+    label_text = 'Select satellite to track',
+    scrolledlist_items = [""])
 
 #----------------------------------------------- Restore params from ini file
 try:
