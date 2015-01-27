@@ -27,11 +27,9 @@ else:
     rotor = Rotator("/dev/ttyS0")
 
 #Declare variables
-isec0=0
 az=0
 az0=-999
 az00=-999
-c2=0
 moveok=False
 naz0=az0
 el=0
@@ -42,10 +40,7 @@ t0=0.
 x0=120
 y0=120
 azreq=153
-azreq0=0
 elreq=0
-azNow=0
-elNow=0
 azmove=0
 elmove=0
 # Used for db display calculations
@@ -61,7 +56,7 @@ nWriteToFile=IntVar()
 nRun=IntVar()
 nWriteToFile0=0
 
-f1=""
+logFile=""
 running=False
 stream=""
 
@@ -191,182 +186,178 @@ def mouse_click_g2(event):
 
 #------------------------------------------------------ update
 def update():
-    global root_geom,celestialBodies, rotor, isec0,naz0,nel0,c,c2,azreq,elreq,azreq0,nWriteToFile0,f1,azNow,elNow,running, \
-        stream,s1,s2,s4,n1,n2,n4,azmove,elmove
+    global root_geom, celestialBodies, rotor, naz0,nel0, azDisplayRedLine, elDisplayRedLine, azreq,elreq,nWriteToFile0,logFile,running, \
+        stream
     
     # nRun from "Enable A/D" checkbutton
     if(not running and nRun.get()):
     	# p is pyAudio stream
-        stream=p.open(format=FORMAT, channels=1, rate=RATE,input=True,
+        stream = p.open(format=FORMAT, channels=1, rate=RATE,input=True,
                         frames_per_buffer=CHUNK_SIZE)
         running=True
     # get the number of seconds
     utc=time.gmtime(time.time())
-    isec=utc[5]
-    if isec != isec0:                           #Do once per second
-        isec0=isec
-        
-        # Update clock label
-        lst=str(telescope.sidereal_time())
-        # lst format : "hh:mm:ss.ss"
-        t = time.strftime('%Y %b %d\nUTC: %H:%M:%S',utc)
-        if(lst[1]==':'): lst='0'+lst
-        t = t + '\nLST: ' + lst[0:8]
-        utclab.configure(text = t) 
-        
-        #s=rotor.read(40)
-        # default: azreq and elreq are "manual mode" inputs
+    # Update clock label
+    lst=str(telescope.sidereal_time())
+    # lst format : "hh:mm:ss.ss"
+    t = time.strftime('%Y %b %d\nUTC: %H:%M:%S',utc)
+    if(lst[1]==':'): lst='0'+lst
+    t = t + '\nLST: ' + lst[0:8]
+    utclab.configure(text = t) 
+    
+    #s=rotor.read(40)
+    # default: azreq and elreq are "manual mode" inputs
+    el = elreq
+    az = azreq
+    # Find radiobutton setting
+    i = ntrack.get()
+    # Find desired body
+    telescope.date = ephem.now()
+    if i == "Manual":
         el = elreq
         az = azreq
-        # Find radiobutton setting
-        i = ntrack.get()
-        # Find desired body
-        telescope.date = ephem.now()
-        if i == "Manual":
-            el = elreq
-            az = azreq
-        elif i == "W3CCX/B":                      #W3CCX/B
-            az=227
-            el=0
-        elif i == "Stow":                       #Stow
-            az=150
-            el=20
-        elif i in celestialBodies:            # Celestial body in dictionary
-            celestialBodies[i].compute(telescope)
-            az=celestialBodies[i].az * DEGREES_PER_RADIAN
-            el=celestialBodies[i].alt * DEGREES_PER_RADIAN
-        #else:                                #From azel.dat (NOTE: does not seem to access azel.dat)
-        #    try:
-        #        az=float(s[i-2][9:14])
-        #        el=float(s[i-2][15:20])
-        #    except:
-        #       az=naz0
-        #       el=nel0
-        
-        # Offset radio buttons
-        eloff=float(offset.get()) # Value in offset textbox
-        azoff=eloff/math.cos(el/DEGREES_PER_RADIAN)
-        noff=noffset.get() # ID number for currently selected radio button
-        # Three point scanning mode
-        if nThreePoint.get():
-            n=(int(time.clock())/15) % 4
-            if n==0: noff=1
-            if n==1: noff=2
-            if n==2: noff=1
-            if n==3: noff=4
-            noffset.set(noff)
-        # Determine correct offset
-        if noff==2:
-            az=az - azoff
-        elif noff==3:
-            el=el + eloff
-        elif noff==4:
-            az=az + azoff
-        elif noff==5:
-            el=el-eloff
+    elif i == "W3CCX/B":                      #W3CCX/B
+        az=227
+        el=0
+    elif i == "Stow":                       #Stow
+        az=150
+        el=20
+    elif i in celestialBodies:            # Celestial body in dictionary
+        celestialBodies[i].compute(telescope)
+        az=celestialBodies[i].az * DEGREES_PER_RADIAN
+        el=celestialBodies[i].alt * DEGREES_PER_RADIAN
+    #else:                                #From azel.dat (NOTE: does not seem to access azel.dat)
+    #    try:
+    #        az=float(s[i-2][9:14])
+    #        el=float(s[i-2][15:20])
+    #    except:
+    #       az=naz0
+    #       el=nel0
+    
+    # Offset radio buttons
+    eloff=float(offset.get()) # Value in offset textbox
+    azoff=eloff/math.cos(el/DEGREES_PER_RADIAN)
+    noff=noffset.get() # ID number for currently selected radio button
+    # Three point scanning mode
+    if nThreePoint.get():
+        n=(int(time.clock())/15) % 4
+        if n==0: noff=1
+        if n==1: noff=2
+        if n==2: noff=1
+        if n==3: noff=4
+        noffset.set(noff)
+    # Determine correct offset
+    if noff==2:
+        az=az - azoff
+    elif noff==3:
+        el=el + eloff
+    elif noff==4:
+        az=az + azoff
+    elif noff==5:
+        el=el-eloff
 
-        # Update "requested" textbox
-        naz=nint(az)
-        nel=nint(el)
-        t=str(naz) + '  ' + str(nel)
-        azelreq.configure(text=t)
+    # Update "requested" textbox
+    naz=nint(az)
+    nel=nint(el)
+    t=str(naz) + '  ' + str(nel)
+    azelreq.configure(text=t)
 
-        azpc=0                          #Pointing corrections
-        elpc=0                          #was -1
-        az_command=naz+azpc
-        el_command=nel+elpc
+    azpc=0                          #Pointing corrections
+    elpc=0                          #was -1
+    az_command=naz+azpc
+    el_command=nel+elpc
+    
+    # Prevent negative elevation
+    if el_command<0: el_command=0
+    
+    # Move the rotors
+    if moveok :
+        rotor.setPosition(az_command,el_command)
         
-        # Prevent negative elevation
-        if el_command<0: el_command=0
-        
-        # Move the rotors
-        if moveok :
-            rotor.setPosition(az_command,el_command)
-            
-        # Update current position display
-        aa = rotor.getAzimuth()
-        ee = rotor.getElevation()
-        azmove = (rotor.getSpeed("A")) > 0
-        elmove = rotor.getSpeed("E") > 0
-        # aa = current az
-        # ae = current el
-        # az/elmove = bool is currently moving?
-        if aa != -99: azNow=aa
-        if ee != -99: elNow=ee
-        azelActual.configure(text = (str(nint(aa)) + '  ' + str(nint(ee))))
-        # dB Display
-        pwr=0
-        db=0
-        if(nRun.get()):
-            data = array('h', stream.read(CHUNK_SIZE))
-            pwr=dot(data,data)/len(data)
-            if pwr<1.0: pwr=1.0
-            rms=math.sqrt(pwr)
-            db=10.0*math.log10(pwr)
-            if noffset.get()==1:
-                s1=s1+pwr
-                n1+=1
-            if noffset.get()==2:
-                s2=s2+pwr
-                n2+=1
-            if noffset.get()==4:
-                s4=s4+pwr
-                n4+=1
-            y=1.0
-            ydb=0.0
-            if n2+n4>0 and azmove==0:
-                base=float(s2+s4)/(n2+n4)
-                if n1>0:
-                    y=float(s1/n1)/base
+    # Update current position display
+    azNow = rotor.getAzimuth()
+    elNow = rotor.getElevation()
+    azmove = (rotor.getSpeed("A")) > 0
+    elmove = rotor.getSpeed("E") > 0
+    # aa = current az
+    # ae = current el
+    # az/elmove = bool is currently moving?
+    #if aa != -99: azNow = aa
+    #if ee != -99: elNow = ee
+    azelActual.configure(text = (str(nint(azNow)) + '  ' + str(nint(elNow))))
+    # dB Display
+    pwr=0
+    db=0
+    if(nRun.get()):
+        data = array('h', stream.read(CHUNK_SIZE))
+        pwr=dot(data,data)/len(data)
+        if pwr<1.0: pwr=1.0
+        rms=math.sqrt(pwr)
+        db=10.0*math.log10(pwr)
+        if noffset.get()==1:
+            s1=s1+pwr
+            n1+=1
+        if noffset.get()==2:
+            s2=s2+pwr
+            n2+=1
+        if noffset.get()==4:
+            s4=s4+pwr
+            n4+=1
+        y=1.0
+        ydb=0.0
+        if n2+n4>0 and azmove==0:
+            base=float(s2+s4)/(n2+n4)
+            if n1>0:
+                y=float(s1/n1)/base
 ##                    print s1,s2,s4,n1,n2,n4,(s1/n1),base,y
-                    if y>0:
-                        ydb=10.0*math.log10(y)
-            t=" P:%7.2f dB\n Y:%7.3f dB" % (db-50,ydb)
-            noiseLab.configure(text=t)
+                if y>0:
+                    ydb=10.0*math.log10(y)
+        t=" P:%7.2f dB\n Y:%7.3f dB" % (db-50,ydb)
+        noiseLab.configure(text=t)
 ##            print "%15.3f  %10.3f %8.2f %8.0f %8.3f" % \
 ##                (time.time(),time.clock(),rms,pwr,db)
 
-        t0="%7.1f  %d %7.1f  %d  %d" % (azNow,azmove,elNow,elmove,noffset.get())
-        f0.seek(0)
-        f0.write(t0+'\n')
-        
-        # Update red arrow on display
-        naz=nint(az)
-        if naz!=naz0:
-            naz0=naz
-            x=75*math.sin(az/DEGREES_PER_RADIAN)
-            y=-75*math.cos(az/DEGREES_PER_RADIAN)
-            x1=x0-x
-            x2=x0+x
-            y1=y0-y
-            y2=y0+y
-            graph1.delete(c)
-            c=graph1.create_line(x1,y1,x2,y2,width=4,arrow='last',
-                fill='red',tags='azpointer')
+    t0="%7.1f  %d %7.1f  %d  %d" % (azNow,azmove,elNow,elmove,noffset.get())
+    f0.seek(0)
+    f0.write(t0+'\n')
+    
+    # Update red arrow on display
+    naz=nint(az)
+    if naz!=naz0:
+        naz0=naz
+        x=75*math.sin(az/DEGREES_PER_RADIAN)
+        y=-75*math.cos(az/DEGREES_PER_RADIAN)
+        x1=x0-x
+        x2=x0+x
+        y1=y0-y
+        y2=y0+y
+        graph1.delete(azDisplayRedLine)
+        azDisplayRedLine=graph1.create_line(x1,y1,x2,y2,width=4,arrow='last',
+            fill='red',tags='azpointer')
 
-        nel=nint(el)
-        if el!=nel0:
-            nel0=nel
-            graph2.delete(c2)
-            y=220 - nel*(200.0/80.0)
-            c2=graph2.create_line(25,y,32,y,fill='red',width=4)
-        
-        # Write to log if checkbox for "Write to File" is enabled
-        if nWriteToFile.get():
-            if nWriteToFile0==0:
-                t=str(int(time.clock()))
-                f1=open(appdir+'/'+t+'.dat',mode='w')
-            t1="%9.1f  %6.1f  %d  %6.1f  %d  %d %8.0f %8.2f" % \
-                (time.clock(),azNow,azmove,elNow,elmove,noffset.get(),pwr,db)
-            t2=time.strftime('%H:%M:%S',utc) + " " + lst[:8] + t1
-            print t2
-            f1.write(t2+'\n')
-            f1.flush()
-        else:
-            print t0
-            if nWriteToFile0==1:
-                f1.close()
-        nWriteToFile0=nWriteToFile.get()
+    nel=nint(el)
+    if el!=nel0:
+        nel0=nel
+        graph2.delete(elDisplayRedLine)
+        y=220 - nel*(200.0/80.0)
+        elDisplayRedLine=graph2.create_line(25,y,32,y,fill='red',width=4)
+    
+    # Write to log if checkbox for "Write to File" is enabled
+    if nWriteToFile.get():
+        if nWriteToFile0==0:
+            t=str(int(time.clock()))
+            logFile=open(appdir+'/'+t+'.dat',mode='w')
+        t1="%9.1f  %6.1f  %d  %6.1f  %d  %d %8.0f %8.2f" % \
+            (time.clock(),azNow,azmove,elNow,elmove,noffset.get(),pwr,db)
+        t2=time.strftime('%H:%M:%S',utc) + " " + lst[:8] + t1
+        print t2
+        logFile.write(t2+'\n')
+        logFile.flush()
+    else:
+        print t0
+        if nWriteToFile0==1:
+            logFile.close()
+    nWriteToFile0=nWriteToFile.get()
     # End section repeated every second
     root_geom=root.geometry()
     # Loop!
@@ -437,7 +428,7 @@ graph1.create_oval(20,20,220,220)
 
 r=8 # Radius of center circle
 graph1.create_oval(x0-r,y0-r,x0+r,y0+r,outline='red',fill='red')
-c=graph1.create_line(x0-1,y0-1,x0+1,y0+1,fill='red')
+azDisplayRedLine=graph1.create_line(x0-1,y0-1,x0+1,y0+1,fill='red')
 # Draw small hash marks
 for i in range(0,360,10):
     x1=x0 + 90*math.sin(i/DEGREES_PER_RADIAN)
@@ -471,7 +462,7 @@ for i in range(0,81,10):
     graph2.create_text(10,y,text=t)
 # Bind event handler
 Widget.bind(graph2,"<Button-1>",mouse_click_g2)
-c2=graph2.create_line(25,220,32,220,fill='red',width=4)
+elDisplayRedLine=graph2.create_line(25,220,32,220,fill='red',width=4)
 graph2.pack(side=LEFT,padx=20)
 
 # Offset widget
