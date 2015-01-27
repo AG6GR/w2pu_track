@@ -116,11 +116,11 @@ f0=open(appdir+'/azel.dat',mode='w')
 def dot(a, b):
     return sum(imap(mul, a, b))
 
-#--------------------------------------------------------- enable_move()
-def enable_move(event=NONE):
+#--------------------------------------------------------- toggle_stop_go()
+def toggle_stop_go(event=NONE):
     """Event handler for click event on Stop/Go button"""
     global moveok,t0
-    print "enable_move() called"
+    print "toggle_stop_go() called"
     if moveok:
         # Was enabled, now stopped
         disable_move(event)
@@ -129,6 +129,7 @@ def enable_move(event=NONE):
         moveok = True
         moveButton.configure(bg='green')
         t0=time.clock()
+        update()
 
 #--------------------------------------------------------- disable_move()
 def disable_move(event=NONE):
@@ -154,8 +155,8 @@ def msgbox(t):
     result=msg.activate()
     msg.focus_set()
 
-#------------------------------------------------------ mouse_click_g1
-def mouse_click_g1(event):
+#------------------------------------------------------ mouse_click_az
+def mouse_click_az(event):
     """Event handler for click event on azimuth display dial"""
     global x0,azreq,t0
     print "Detected click on azimuth dial"
@@ -168,9 +169,10 @@ def mouse_click_g1(event):
     disable_move(event)
     ntrack.set('Manual')
     t0=time.clock()
+    update()
 
-#------------------------------------------------------ mouse_click_g2
-def mouse_click_g2(event):
+#------------------------------------------------------ mouse_click_el
+def mouse_click_el(event):
     """Event handler for click event on elevation display meter"""
     global elreq,t0
     print "Detected click on elevation dial"
@@ -183,10 +185,11 @@ def mouse_click_g2(event):
     disable_move(event)
     ntrack.set('Manual')
     t0=time.clock()
+    update()
 
 #------------------------------------------------------ update
 def update():
-    global root_geom, celestialBodies, rotor, naz0,nel0, azDisplayRedLine, elDisplayRedLine\
+    global root_geom, celestialBodies, rotor, naz0,nel0, azDisplayRedLine, elDisplayRedLine, \
     azreq,elreq,nWriteToFile0,logFile,running, stream
     
     # nRun from "Enable A/D" checkbutton
@@ -452,7 +455,7 @@ for i in range(0,360,30):
     t=str(i)
     graph1.create_text(x3,y3,text=t)
 # Bind event handlers
-Widget.bind(graph1,"<Button-1>",mouse_click_g1)
+Widget.bind(graph1,"<Button-1>",mouse_click_az)
 graph1.pack(side=LEFT)
 iframe4.pack(side=LEFT)
 
@@ -464,7 +467,7 @@ for i in range(0,81,10):
     t=str(i)
     graph2.create_text(10,y,text=t)
 # Bind event handler
-Widget.bind(graph2,"<Button-1>",mouse_click_g2)
+Widget.bind(graph2,"<Button-1>",mouse_click_el)
 elDisplayRedLine=graph2.create_line(25,220,32,220,fill='red',width=4)
 graph2.pack(side=LEFT,padx=20)
 
@@ -504,7 +507,7 @@ azelActual=Label(group6.interior(), bg='black', fg='yellow', width=8, bd=4,
 azelActual.pack(side=TOP,padx=5,pady=1)
 
 # Stop/Go button
-moveButton=Button(iframe5,text='Stop/Go',command=enable_move,padx=4,pady=1,bg='red')
+moveButton=Button(iframe5,text='Stop/Go',command=toggle_stop_go,padx=4,pady=1,bg='red')
 moveButton.pack(side=TOP,pady=5)
 iframe5.pack()
 frame.pack()
