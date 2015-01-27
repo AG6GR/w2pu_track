@@ -30,6 +30,35 @@ def printPosition(station, satellites) :
 		print(satname + ":   \taltitude = " + str(altitude) + " deg \tazimuth = " + str(azimuth) + " deg")
 	return
 	
+def selectSatellite(station, satellites, tkRoot) :
+	# Calculate current position for each satellite, append to name for display in dialog
+	listSatNames = []
+	for satname in satellites :
+		station.date = ephem.now()
+		satellites[satname].compute(station)
+		altitude = satellites[satname].alt * DEGREES_PER_RADIAN
+		azimuth = satellites[satname].az * DEGREES_PER_RADIAN
+		if altitude > 0 :
+			# Put visible satellites at top of list
+			listSatNames.insert(0, satname + " (" + "{0:.2f}".format(altitude) + ", " 
+				+ "{0:.2f}".format(azimuth) + ")")
+		else :
+			listSatNames.append(satname + " (" + "{0:.2f}".format(altitude) + ", " 
+				+ "{0:.2f}".format(azimuth) + ")")
+	# Define dialog
+	dialog = Pmw.ComboBoxDialog(tkRoot,
+		title = 'Satellite Selection',
+		buttons = ('OK','Cancel'),
+		defaultbutton = 'OK',
+		combobox_labelpos = 'n',
+		label_text = 'Select satellite to track',
+		scrolledlist_items = listSatNames)
+	# Display dialog
+	buttonClicked = ""
+	buttonClicked = dialog.activate()
+	dialog.focus_force()
+	response = dialog.get()
+	return response[:(response.find("(") - 1)]
 # Main
 
 #Initialize Tkinter, Pmw MegaWidgets
@@ -48,18 +77,4 @@ station.lat = ephem.degrees('40.35417')
 station.elevation = 43
 
 printPosition(station, satellites)
-
-# Define dialog
-
-dialog = Pmw.ComboBoxDialog(root,
-	title = 'Satellite Selection',
-	buttons = ('OK','Cancel'),
-	defaultbutton = 'OK',
-	combobox_labelpos = 'n',
-	label_text = 'Select satellite to track',
-	scrolledlist_items = (satellites.keys()))
-
-# Display dialog
-buttonClicked = dialog.activate()
-dialog.focus_force()
-print dialog.get()
+print selectSatellite(station, satellites, root)
