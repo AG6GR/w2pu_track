@@ -117,122 +117,6 @@ celestialBodies["Virgo A"]._epoch="2000/1/1 00:00:00"
 # Contains last known az/el position of rotators
 f0=open(appdir+'/azel.dat',mode='w')
 
-#---------------------------------------------------------- getAzEl()
-def getAzEl():
-    global azmove,elmove
-    az=-99
-    el=-99
-    rotor.write("A\r")
-    sa=rotor.read(128)                       #Get present Az
-    #Sample output: "A\r\nA=150.5 S=6 S\r\n
-    if STATION=="K1JT":
-        i0=sa.find("P=")+2
-        i1=i0 + sa[i0:].find("S=")-1
-    else:
-        i0=sa.find("A=")+2
-        i1=i0 + sa[i0:].find(" ")
-
-    try:
-        az=float(sa[i0:i1])
-        i2=sa.find("S=")+2
-##        azspeed=int(sa[i2:i2+1])
-        azmove=0
-        if i2>0 and sa.find(" M")>0: azmove=1
-    except:
-        pass
-
-    rotor.write("E\r")
-    se=rotor.read(128)                       #Get present El
-    #Sample output: "E\r\nE=150.5 S=9 S\r\n
-    i0=se.find("E=")+2
-    i1=i0 + se[i0:].find(" ")
-    try:
-        el=float(se[i0:i1])
-        i2=se.find("S=")+2
-##        elspeed=int(se[i2:i2+1])
-        elmove=0
-        if i2>0 and se.find(" M")>0: elmove=1
-    except:
-        pass
-    return az,el,azmove,elmove
-
-#---------------------------------------------------------- set_rotors()
-def set_rotors(az_command,el_command):
-    global az,az0,el,el0,moveok,az00,t0,azmove,elmove
-
-    rotor.write("A\r")
-    s=rotor.read(128)                       #Get present Az
-    if STATION=="K1JT":
-        i0=s.find("P=")+2
-        i1=i0 + s[i0:].find("S=")-1
-    else:
-        i0=s.find("A=")+2
-        i1=i0 + s[i0:].find(" ")
-
-    try:
-        az=float(s[i0:i1])
-        i2=s.find("S=")+2
-        azspeed=int(s[i2:i2+1])
-        azmove=0
-        if i2>0 and azspeed!=0:
-            azmove=1
-    except:
-        pass
-
-    rotor.write("E\r")
-    s=rotor.read(128)                       #Get present El
-    i0=s.find("E=")+2
-    i1=i0 + s[i0:].find(" ")
-    try:
-        el=float(s[i0:i1])
-        i2=s.find("S=")+2
-        elspeed=int(s[i2:i2+1])
-        elmove=0
-        if i2>0 and elspeed!=0:
-            elmove=1
-    except:
-        pass
-
-##    print "Az: ",az,"   El:",el
-    naz=nint(az)
-    nel=nint(el)
-    t=str(naz) + '  ' + str(nel)
-    azelActual.configure(text=t)            #Display actual Az, El
-
-    if moveok:
-        if az_command < 1: az_command=1       #Set the available range
-        if az_command > 359: az_command=359   # of Az, El
-        if el_command < 0: el_command=0
-        if el_command > 80: el_command=80
-
-        if abs(az_command-az0) >= 1.5:
-            utc=time.gmtime(time.time())
-            
-            rotor.flushInput()
-            if STATION=="K1JT":
-                rotor.write("A\r")
-                s=rotor.read(14)
-                t=str(az_command) + "\r"
-##                print "Written (Az): ",t
-                rotor.write(t)
-            else:
-                t="A" + str(az_command) + "\r"
-##                print "Written (Az): ",t
-                rotor.write(t)                    #Command new Az
-            s=rotor.read(14)
-##            print "Read (Az):",s            
-            az0=az_command
-
-        if abs(el_command-el0) >= 1.5:
-            utc=time.gmtime(time.time())
-            rotor.flushInput()
-            t="E" + str(el_command) + "\r"
-##            print "Written (El): ",t
-            rotor.write(t)                    #Command new El
-            s=rotor.read(14)
-##            print "Read (El): ",s
-            el0=el_command
-
 #--------------------------------------------------------- dot()
 def dot(a, b):
     return sum(imap(mul, a, b))
@@ -517,7 +401,7 @@ noiseLab.pack(side=LEFT)
 
 # Radiobuttons for target selection
 ntrack=StringVar()
-ntrack.set('Manual')
+ntrack.set('Stow')
 group3=Pmw.Group(frame,tag_text='Pointing')
 group3.pack(fill=BOTH,expand=1,padx=6,pady=6)
 Radiobutton(group3.interior(),text='Manual',anchor=W,variable=ntrack, \
