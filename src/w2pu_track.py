@@ -181,7 +181,12 @@ def mouse_click_el(event):
     ntrack.set('Manual')
     t0=time.clock()
     update()
-
+    
+#------------------------------------------------------ selectSatellite
+def selectSatellite(event):
+    """Event handler for click on Satellite radio button"""
+    print "selectSatellite()"
+    
 #------------------------------------------------------ update
 def update():
     global root_geom, celestialBodies, rotor, naz0,nel0, azDisplayRedLine, elDisplayRedLine, \
@@ -223,6 +228,10 @@ def update():
         celestialBodies[i].compute(telescope)
         az=celestialBodies[i].az * DEGREES_PER_RADIAN
         el=celestialBodies[i].alt * DEGREES_PER_RADIAN
+    elif i == "Satellite" :
+        # Temporary placeholder for satellite tracking
+        az=150
+        el=20
     #else:                                #From azel.dat (NOTE: does not seem to access azel.dat)
     #    try:
     #        az=float(s[i-2][9:14])
@@ -358,6 +367,7 @@ def update():
     # End section repeated every second
     root_geom=root.geometry()
 
+#------------------------------------------------------ mainUpdateLoop
 def mainUpdateLoop() :
     global root
     """Actions performed once per second"""
@@ -419,8 +429,8 @@ Radiobutton(group3.interior(),text='Sgr',anchor=W,variable=ntrack, \
     value="Sagittarius A",command=disable_move).grid(row=1,column=3,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='Tau',anchor=W,variable=ntrack, \
     value="Taurus A",command=disable_move).grid(row=1,column=4,sticky=W,padx=5)
-Radiobutton(group3.interior(),text='Vir',anchor=W,variable=ntrack, \
-    value="Virgo A",command=disable_move).grid(row=1,column=5,sticky=W,padx=5)
+Radiobutton(group3.interior(),text='Satellite',anchor=W,variable=ntrack, \
+    value="Satellite",command=selectSatellite).grid(row=1,column=5,sticky=W,padx=5)
 
 # Azimuth display dial
 iframe4 = Frame(frame, bd=2, relief=GROOVE)
