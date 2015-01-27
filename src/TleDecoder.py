@@ -9,7 +9,7 @@ TLEURL = "http://www.amsat.org/amsat/ftp/keps/current/nasabare.txt"
 DEGREES_PER_RADIAN = 180.0 / math.pi
 
 # Method for fetching list of TLE from a website, parsing, and loading into a dictionary (hash table)
-def loadTLE(url) :
+def fetchTLE(url) :
 	satlist = dict()
 	# Download AMSAT TLE file
 	tledatafile = urllib2.urlopen(TLEURL)
@@ -67,7 +67,7 @@ root_geom=""
 font1='Helvetica'
 
 satellites = dict()
-satellites.update(loadTLE(TLEURL))
+satellites.update(fetchTLE(TLEURL))
 print "Currently loaded " + str(len(satellites)) + " satellites"
 
 # Define station location for pyephem

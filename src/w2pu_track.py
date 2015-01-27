@@ -1,6 +1,6 @@
 #--------------------------------------------------------------  w2pu_track
 from Tkinter import *
-import Pmw, serial, os, time, math, ephem, pyaudio
+import Pmw, serial, os, time, math, ephem, pyaudio, urllib2
 from array import array
 from itertools import imap
 from operator import mul
@@ -12,6 +12,7 @@ RATE = 12000
 ##STATION = "K1JT"
 STATION = "W2PU"
 COMPORT = "COM1"
+TLEURL = "http://www.amsat.org/amsat/ftp/keps/current/nasabare.txt"
 DEGREES_PER_RADIAN = 57.2957795131
 
 #Initialize Tkinter, Pmw MegaWidgets
@@ -55,11 +56,18 @@ logFile=""
 running=False
 stream=""
 
+# Open azel.dat in writing mode
+# Contains last known az/el position of rotators
+f0=open(appdir+'/azel.dat',mode='w')
+
 # Define station location for pyephem
 telescope = ephem.Observer()
 telescope.long =  ephem.degrees('-74.625')     #W2PU location
 telescope.lat = ephem.degrees('40.35417')
 telescope.elevation = 43
+
+# Define dictionary for satellite database
+satellites = dict()
 
 # Setup fixed pyephem bodies
 celestialBodies = dict()
@@ -102,10 +110,6 @@ celestialBodies["Virgo A"] = ephem.FixedBody()
 celestialBodies["Virgo A"]._ra = ephem.hours('12:30:49')
 celestialBodies["Virgo A"]._dec = ephem.degrees('12:23:28')
 celestialBodies["Virgo A"]._epoch="2000/1/1 00:00:00"
-
-# Open azel.dat in writing mode
-# Contains last known az/el position of rotators
-f0=open(appdir+'/azel.dat',mode='w')
 
 #--------------------------------------------------------- dot()
 def dot(a, b):
@@ -181,10 +185,34 @@ def mouse_click_el(event):
     ntrack.set('Manual')
     t0=time.clock()
     update()
-    
+#------------------------------------------------------ fetchTLE  
+def fetchTLE(url) :
+    """Method for fetching list of TLE from a website, parsing, and loading into a dictionary"""
+    satlist = dict()
+    # Download AMSAT TLE file
+    tledatafile = urllib2.urlopen(TLEURL)
+    tledata = tledatafile.read()
+    tleEntries = tledata.split("\n")
+    for i in range(0, len(tleEntries) - 2, 3) :
+            satellites[tleEntries[i]] = ephem.readtle(tleEntries[i].rstrip("\r\n"), tleEntries[i + 1].rstrip("\r\n"), tleEntries[i + 2].rstrip("\r\n"))
+    return satlist
+#------------------------------------------------------ printPosition  
+def printPosition(station, satellites) :
+    """Method for printing current az/alt of tracked satellites"""
+	for satname in satellites :
+		station.date = ephem.now()
+		satellites[satname].compute(station)
+		altitude = satellites[satname].alt * DEGREES_PER_RADIAN
+		azimuth = satellites[satname].az * DEGREES_PER_RADIAN
+		#if (altitude > 0) :
+		print(satname + ":   \taltitude = " + str(altitude) + " deg \tazimuth = " + str(azimuth) + " deg")
+	return
 #------------------------------------------------------ selectSatellite
-def selectSatellite(event):
+def selectSatellite():
+    global telescope, satellites
     """Event handler for click on Satellite radio button"""
+    disable_move()
+    printPosition(telescope, satellites)
     print "selectSatellite()"
     
 #------------------------------------------------------ update
@@ -545,7 +573,11 @@ except:
 # Define and open an audio stream
 p = pyaudio.PyAudio()
 
-graph1.after(100,mainUpdateLoop) # Starts update loop
+# Fetch and load TLE elements from url
+satellites.update(fetchTLE(TLEURL))
+print "Currently loaded " + str(len(satellites)) + " satellites"
+# Starts update loop
+graph1.after(100,mainUpdateLoop) 
 root.title('  W2PU Track')
 root.mainloop()
 
