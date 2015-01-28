@@ -251,7 +251,7 @@ def selectSatellite():
 #------------------------------------------------------ update
 def update():
     global root_geom, celestialBodies, rotor, naz0,nel0, azDisplayRedLine, elDisplayRedLine, \
-    azreq,elreq,nWriteToFile0,logFile,running, stream
+    azreq,elreq,selectedSatellite, nWriteToFile0,logFile,running, stream
     # nRun from "Enable A/D" checkbutton
     if(not running and nRun.get()):
     	# p is pyAudio stream
@@ -291,9 +291,9 @@ def update():
         el=celestialBodies[i].alt * DEGREES_PER_RADIAN
     elif i == "Satellite" :
         if selectedSatellite in satellites :
-            satellites[i].compute(telescope)
-            az=satellites[i].az * DEGREES_PER_RADIAN
-            el=satellites[i].alt * DEGREES_PER_RADIAN
+            satellites[selectedSatellite].compute(telescope)
+            az=satellites[selectedSatellite].az * DEGREES_PER_RADIAN
+            el=satellites[selectedSatellite].alt * DEGREES_PER_RADIAN
         else :
             print "Invalid satellite: " + selectedSatellite
             az = 150
