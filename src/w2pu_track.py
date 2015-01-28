@@ -216,9 +216,9 @@ def selectSatellite():
     disable_move()
     # Calculate current position for each satellite, append to name for display in dialog
     listSatNames = []
-    station.date = ephem.now()
+    telescope.date = ephem.now()
     for satname in satellites :
-        satellites[satname].compute(station)
+        satellites[satname].compute(telescope)
         altitude = satellites[satname].alt * DEGREES_PER_RADIAN
         azimuth = satellites[satname].az * DEGREES_PER_RADIAN
         if altitude > 0 :
@@ -235,7 +235,7 @@ def selectSatellite():
     satSelectDialog.focus_force()
     # Extract name of selected satellite
     response = satSelectDialog.get()
-    selectedSatellite = response[:(response.find("(") - 1)])
+    selectedSatellite = response[:(response.find("(") - 1)]
     # Set name of radio buttion
     satelliteRadioButton.configure(text = selectedSatellite)
     print selectedSatellite
@@ -286,11 +286,11 @@ def update():
             satellites[i].compute(telescope)
             az=satellites[i].az * DEGREES_PER_RADIAN
             el=satellites[i].alt * DEGREES_PER_RADIAN
-        else
+        else :
             print "Invalid satellite: " + selectedSatellite
             az = 150
             el = 20
-    else
+    else :
         az=150
         el=20
     #else:                                #From azel.dat (NOTE: does not seem to access azel.dat)
