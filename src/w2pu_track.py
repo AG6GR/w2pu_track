@@ -211,7 +211,7 @@ def printPosition(station, satellites) :
     return
 #------------------------------------------------------ selectSatellite
 def selectSatellite():
-    global telescope, satellites, satSelectDialog, selectedSatellite, satelliteRadioButton
+    global telescope, satellites, selectedSatellite, root, satelliteRadioButton
     """Event handler for click on Satellite radio button"""
     disable_move()
     # Calculate current position for each satellite, append to name for display in dialog
@@ -228,8 +228,16 @@ def selectSatellite():
         else :
             listSatNames.append(satname + " (" + "{0:.2f}".format(altitude) + ", " 
                 + "{0:.2f}".format(azimuth) + ")")
+    # Define satellite selection dialog
+    satSelectDialog = Pmw.ComboBoxDialog(root,
+        title = 'Satellite Selection',
+        buttons = ('OK','Cancel'),
+        defaultbutton = 'OK',
+        combobox_labelpos = 'n',
+        label_text = 'Select satellite to track',
+        scrolledlist_items = listSatNames)
+    satSelectDialog.withdraw()
     # Display dialog
-    satSelectDialog.configure(scrolledlist_items = listSatNames)
     buttonClicked = ""
     buttonClicked = satSelectDialog.activate()
     satSelectDialog.focus_force()
@@ -577,16 +585,6 @@ moveButton=Button(iframe5,text='Stop/Go',command=toggle_stop_go,padx=4,pady=1,bg
 moveButton.pack(side=TOP,pady=5)
 iframe5.pack()
 frame.pack()
-
-# Define satellite selectiondialog
-satSelectDialog = Pmw.ComboBoxDialog(root,
-    title = 'Satellite Selection',
-    buttons = ('OK','Cancel'),
-    defaultbutton = 'OK',
-    combobox_labelpos = 'n',
-    label_text = 'Select satellite to track',
-    scrolledlist_items = [""])
-satSelectDialog.withdraw()
 
 #----------------------------------------------- Restore params from ini file
 try:
