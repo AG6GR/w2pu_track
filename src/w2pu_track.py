@@ -68,8 +68,9 @@ telescope.elevation = 43
 
 # Define dictionary for satellite database
 satellites = dict()
-# Define string for currently selected satellite
-selectedSatellite = ""
+# Define Tkinter string for currently selected satellite
+selectedSatellite = StringVar()
+selectedSatellite.set("Satellite")
 
 # Setup fixed pyephem bodies
 celestialBodies = dict()
@@ -243,10 +244,9 @@ def selectSatellite():
     satSelectDialog.focus_force()
     # Extract name of selected satellite
     response = satSelectDialog.get()
-    selectedSatellite = response[:(response.find("(") - 1)]
     # Set name of radio buttion
-    satelliteRadioButton.configure(text = selectedSatellite)
-    print selectedSatellite
+    selectedSatellite.set(response[:(response.find("(") - 1)])
+    print "Selected: " + selectedSatellite.get()
     
 #------------------------------------------------------ update
 def update():
@@ -290,12 +290,12 @@ def update():
         az=celestialBodies[i].az * DEGREES_PER_RADIAN
         el=celestialBodies[i].alt * DEGREES_PER_RADIAN
     elif i == "Satellite" :
-        if selectedSatellite in satellites :
-            satellites[selectedSatellite].compute(telescope)
-            az=satellites[selectedSatellite].az * DEGREES_PER_RADIAN
-            el=satellites[selectedSatellite].alt * DEGREES_PER_RADIAN
+        if selectedSatellite.get() in satellites :
+            satellites[selectedSatellite.get()].compute(telescope)
+            az=satellites[selectedSatellite.get()].az * DEGREES_PER_RADIAN
+            el=satellites[selectedSatellite.get()].alt * DEGREES_PER_RADIAN
         else :
-            print "Invalid satellite: " + selectedSatellite
+            print "Invalid satellite: " + selectedSatellite.get()
             az = 150
             el = 20
     else :
@@ -498,7 +498,7 @@ Radiobutton(group3.interior(),text='Sgr',anchor=W,variable=ntrack, \
     value="Sagittarius A",command=disable_move).grid(row=1,column=3,sticky=W,padx=5)
 Radiobutton(group3.interior(),text='Tau',anchor=W,variable=ntrack, \
     value="Taurus A",command=disable_move).grid(row=1,column=4,sticky=W,padx=5)
-satelliteRadioButton = Radiobutton(group3.interior(),text = "Satellite",anchor=W,variable=ntrack, \
+Radiobutton(group3.interior(),textvariable = selectedSatellite,anchor=W,variable=ntrack, \
     value="Satellite",command=selectSatellite).grid(row=1,column=5,sticky=W,padx=5)
 
 # Azimuth display dial
