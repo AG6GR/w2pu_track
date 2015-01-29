@@ -245,17 +245,20 @@ def selectSatellite():
         label_text = 'Select satellite to track',
         scrolledlist_items = listSatNames)
     # Set size/position of the dialog
-    sateSelectDialog.geometry('300x200+125+125')
+    satSelectDialog.geometry('300x400+125+125')
     satSelectDialog.withdraw()
     # Display dialog
     buttonClicked = ""
     buttonClicked = satSelectDialog.activate()
     satSelectDialog.focus_force()
-    # Extract name of selected satellite
-    response = satSelectDialog.get()
-    # Set name of radio buttion
-    selectedSatellite.set(response[:(response.find("(") - 1)])
-    print "Selected: " + selectedSatellite.get()
+    if buttonClicked == "OK" :
+        # Extract name of selected satellite
+        response = satSelectDialog.get()
+        # Set name of radio buttion
+        selectedSatellite.set(response[:(response.find("(") - 1)])
+        print "Selected: " + selectedSatellite.get()
+    else :
+        selectedSatellite.set("Satellite")
     
 #------------------------------------------------------ update
 def update():
