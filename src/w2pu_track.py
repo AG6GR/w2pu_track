@@ -194,13 +194,16 @@ def fetchTLE(path) :
     satlist = dict()
     if path.startswith("http://") :
         # Assume path refers to url
+        print "URL"
         tleFile = urllib2.urlopen(path)
         tleEntries = tleFile.read().split("\n")
     else :
         # Assume path is a filename
+        print "FILE"
         tleFile = open(TLEFILENAME, "r")
         tleEntries = tleFile.readlines()
     for i in range(0, len(tleEntries) - 2, 3) :
+        print "read: " + tleEntries[i]
         satellites[tleEntries[i].lstrip("0 ")] = ephem.readtle(tleEntries[i].rstrip("\r\n"), 
             tleEntries[i + 1].rstrip("\r\n"), 
             tleEntries[i + 2].rstrip("\r\n"))
@@ -604,11 +607,11 @@ except:
 p = pyaudio.PyAudio()
 
 # Load TLE
-try :
+#try :
     # Fetch and load TLE elements from file, if it exists
-    satellites.update(fetchTLE(TLEFILENAME))
-except :
-    pass
+satellites.update(fetchTLE(TLEFILENAME))
+#except :
+#    pass
 
 try :
     # Load from URL
