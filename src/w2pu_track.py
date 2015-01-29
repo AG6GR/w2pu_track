@@ -13,6 +13,7 @@ RATE = 12000
 STATION = "W2PU"
 COMPORT = "COM1"
 TLEURL = "http://www.amsat.org/amsat/ftp/keps/current/nasabare.txt"
+TLEFILENAME = "TLE.txt"
 DEGREES_PER_RADIAN = 57.2957795131
 
 #Initialize Tkinter, Pmw MegaWidgets
@@ -31,7 +32,7 @@ else:
 moveok=False
 naz0=-999
 nel0=0
-t0=0. # Possibly can be removed, seems to be repurposed as string in update()
+t0=0. # Possibly can be removed, seems to be repurposed as string in main loop
 # Center of azimuth display dial
 x0=120
 y0=120
@@ -116,6 +117,7 @@ celestialBodies["Virgo A"]._epoch="2000/1/1 00:00:00"
 
 #--------------------------------------------------------- dot()
 def dot(a, b):
+    """Computes dot product of vectors a and b"""                                                                        
     return sum(imap(mul, a, b))
 
 #--------------------------------------------------------- toggle_stop_go()
@@ -131,11 +133,10 @@ def toggle_stop_go(event=NONE):
         moveok = True
         moveButton.configure(bg='green')
         t0=time.clock()
-        update()
 
 #--------------------------------------------------------- disable_move()
 def disable_move(event=NONE):
-    """Called after radio button is changed"""
+    """Disables movement and stops the rotators. Called after radio button is changed"""
     global moveok, rotor
     print "disable_move()"
     moveok = False
@@ -171,7 +172,6 @@ def mouse_click_az(event):
     disable_move(event)
     ntrack.set('Manual')
     t0=time.clock()
-    update()
 
 #------------------------------------------------------ mouse_click_el
 def mouse_click_el(event):
@@ -187,17 +187,23 @@ def mouse_click_el(event):
     disable_move(event)
     ntrack.set('Manual')
     t0=time.clock()
-    update()
+
 #------------------------------------------------------ fetchTLE  
-def fetchTLE(url) :
-    """Method for fetching list of TLE from a website, parsing, and loading into a dictionary"""
+def fetchTLE(path) :
+    """Method for fetching list of TLE from a website or file, parsing, and loading into a dictionary"""
     satlist = dict()
-    # Download AMSAT TLE file
-    tledatafile = urllib2.urlopen(TLEURL)
-    tledata = tledatafile.read()
-    tleEntries = tledata.split("\n")
+    if path.startswith("http://") :
+        # Assume path refers to url
+        tleFile = urllib2.urlopen(path)
+        tleEntries = tleFile.read().split("\n")
+    else :
+        # Assume path is a filename
+        tleFile = open(TLEFILENAME, "r")
+        tleEntries = tleFile.readlines()
     for i in range(0, len(tleEntries) - 2, 3) :
-        satellites[tleEntries[i]] = ephem.readtle(tleEntries[i].rstrip("\r\n"), tleEntries[i + 1].rstrip("\r\n"), tleEntries[i + 2].rstrip("\r\n"))
+        satellites[tleEntries[i].lstrip("0 ")] = ephem.readtle(tleEntries[i].rstrip("\r\n"), 
+            tleEntries[i + 1].rstrip("\r\n"), 
+            tleEntries[i + 2].rstrip("\r\n"))
     return satlist
 #------------------------------------------------------ printPosition  
 def printPosition(station, satellites) :
@@ -267,8 +273,6 @@ def update():
     if(lst[1]==':'): lst='0'+lst
     t = t + '\nLST: ' + lst[0:8]
     utcLabel.configure(text = t) 
-    
-    #s=rotor.read(40)
     # default: azreq and elreq are "manual mode" inputs
     el = elreq
     az = azreq
@@ -301,13 +305,6 @@ def update():
     else :
         az=150
         el=20
-    #else:                                #From azel.dat (NOTE: does not seem to access azel.dat)
-    #    try:
-    #        az=float(s[i-2][9:14])
-    #        el=float(s[i-2][15:20])
-    #    except:
-    #       az=naz0
-    #       el=nel0
     
     # Offset radio buttons
     eloff=float(offset.get()) # Value in offset textbox
@@ -435,13 +432,7 @@ def update():
     nWriteToFile0=nWriteToFile.get()
     # End section repeated every second
     root_geom=root.geometry()
-
-#------------------------------------------------------ mainUpdateLoop
-def mainUpdateLoop() :
-    global root
-    """Actions performed once per second"""
-    update()
-    root.after(1000,mainUpdateLoop)
+    root.after(500,update)
 
 #------------------------------------------------------ Top level frame
 frame = Frame(root)
@@ -612,11 +603,18 @@ except:
 # Define and open an audio stream
 p = pyaudio.PyAudio()
 
-# Fetch and load TLE elements from url
-satellites.update(fetchTLE(TLEURL))
+# Load TLE
+try :
+    # Fetch and load TLE elements from file, if it exists
+    satellites.update(fetchTLE(TLEFILENAME))
+    # Load from URL
+    satellites.update(fetchTLE(TLEURL))
+except :
+    pass
+
 print "Currently loaded " + str(len(satellites)) + " satellites"
 # Starts update loop
-graph1.after(100,mainUpdateLoop) 
+graph1.after(100,update) 
 root.title('  W2PU Track')
 root.mainloop()
 
