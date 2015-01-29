@@ -607,6 +607,10 @@ p = pyaudio.PyAudio()
 try :
     # Fetch and load TLE elements from file, if it exists
     satellites.update(fetchTLE(TLEFILENAME))
+except :
+    pass
+
+try :
     # Load from URL
     satellites.update(fetchTLE(TLEURL))
 except :
