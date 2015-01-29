@@ -244,6 +244,8 @@ def selectSatellite():
         combobox_labelpos = 'n',
         label_text = 'Select satellite to track',
         scrolledlist_items = listSatNames)
+    # Set size/position of the dialog
+    sateSelectDialog.geometry('300x200+125+125')
     satSelectDialog.withdraw()
     # Display dialog
     buttonClicked = ""
@@ -609,12 +611,13 @@ p = pyaudio.PyAudio()
 # Load TLE
 try :
     # Fetch and load TLE elements from file, if it exists
-satellites.update(fetchTLE(TLEFILENAME))
+    satellites.update(fetchTLE(TLEFILENAME))
 except IOError as e:
     print "I/O error({0}): {1}".format(e.errno, e.strerror)
 except :
     print "Error loading from file: " + TLEFILENAME
     pass
+print "Currently loaded " + str(len(satellites)) + " satellites"
 
 try :
     # Load from URL
