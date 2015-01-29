@@ -124,7 +124,6 @@ def dot(a, b):
 def toggle_stop_go(event=NONE):
     """Event handler for click event on Stop/Go button"""
     global moveok,t0
-    print "toggle_stop_go() called"
     if moveok:
         # Was enabled, now stopped
         disable_move(event)
@@ -138,7 +137,6 @@ def toggle_stop_go(event=NONE):
 def disable_move(event=NONE):
     """Disables movement and stops the rotators. Called after radio button is changed"""
     global moveok, rotor
-    print "disable_move()"
     moveok = False
     moveButton.configure(bg='red')
     rotor.stop()
@@ -162,7 +160,7 @@ def msgbox(t):
 def mouse_click_az(event):
     """Event handler for click event on azimuth display dial"""
     global x0,azreq,t0
-    print "Detected click on azimuth dial"
+    #print "Detected click on azimuth dial"
     # Find and set the new requested azimuth
     x=event.x - x0
     y=event.y - x0
@@ -177,7 +175,7 @@ def mouse_click_az(event):
 def mouse_click_el(event):
     """Event handler for click event on elevation display meter"""
     global elreq,t0
-    print "Detected click on elevation dial"
+    #print "Detected click on elevation dial"
     # Find and set the new requested elevation
     y=event.y
     if y<20: y=20
@@ -194,16 +192,16 @@ def fetchTLE(path) :
     satlist = dict()
     if path.startswith("http://") :
         # Assume path refers to url
-        print "URL"
+        print "Loading TLE from URL: " + path
         tleFile = urllib2.urlopen(path)
         tleEntries = tleFile.read().split("\n")
     else :
         # Assume path is a filename
-        print "FILE"
+        print "Loading TLE from file: " + path
         tleFile = open(TLEFILENAME, "r")
         tleEntries = tleFile.readlines()
+        tleFile.close()
     for i in range(0, len(tleEntries) - 2, 3) :
-        print "read: " + tleEntries[i]
         satellites[tleEntries[i].lstrip("0 ")] = ephem.readtle(tleEntries[i].rstrip("\r\n"), 
             tleEntries[i + 1].rstrip("\r\n"), 
             tleEntries[i + 2].rstrip("\r\n"))
@@ -301,6 +299,8 @@ def update():
             satellites[selectedSatellite.get()].compute(telescope)
             az=satellites[selectedSatellite.get()].az * DEGREES_PER_RADIAN
             el=satellites[selectedSatellite.get()].alt * DEGREES_PER_RADIAN
+        elif selectedSatellite.get() == "Satellite" :
+            print "Select a satellite"
         else :
             print "Invalid satellite: " + selectedSatellite.get()
             az = 150
@@ -607,16 +607,20 @@ except:
 p = pyaudio.PyAudio()
 
 # Load TLE
-#try :
+try :
     # Fetch and load TLE elements from file, if it exists
 satellites.update(fetchTLE(TLEFILENAME))
-#except :
-#    pass
+except IOError as e:
+    print "I/O error({0}): {1}".format(e.errno, e.strerror)
+except :
+    print "Error loading from file: " + TLEFILENAME
+    pass
 
 try :
     # Load from URL
     satellites.update(fetchTLE(TLEURL))
 except :
+    print "Error reading from url: " + TLEURL
     pass
 
 print "Currently loaded " + str(len(satellites)) + " satellites"
