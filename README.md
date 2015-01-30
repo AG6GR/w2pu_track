@@ -9,7 +9,7 @@ Usage
 
 Click on one of the radio buttons in the Pointing section to direct the antennas to your target of choice. By default, the available targets include celestial objects such as the sun and moon, the radio beacon W3CCX/B at 432.288 MHz, and the default Stow position. The final radio button enables satellite tracking mode.
 
-<p align="center"><img src ="https://raw.githubusercontent.com/AG6GR/w2pu_track/master/doc/TrackWindow.PNG" align="center" />
+<p align="center"><img src ="https://github.com/AG6GR/w2pu_track/blob/master/doc/TrackWindow.PNG" align="center" />
 </p>
 <p align="center"><em>Figure 1: Main Window</em></p>
 
