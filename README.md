@@ -2,7 +2,7 @@ w2pu_track
 =====
 Antenna Rotator control program for the W2PU station. The program interfaces with two RC2800PX antenna rotators to allow tracking of various celestial bodies, such as the Sun and Moon, and man-made satellites.
 
-The original w2pu_track program was written by K1JT, who kindly gave permission and the original source code for AG6GR to continue development.
+The original w2pu_track program was written by K1JT, who kindly gave permission and the original celestial body tracking source code for AG6GR to continue development.
 
 Usage
 -----
