@@ -1,0 +1,10 @@
+Recordings
+==========
+
+These are recordings of satellite passes received from the W2PU station.
+Partially decodes of the morse code beacons are also availble in the corresponding
+text files.
+
+Recordings were made during testing of the w2pu_track program. Receiver
+frequency was controlled manually, and audio was recorded using the built-in 
+microphone on AG6GR's laptop (since it tragically lacked an audio-in port).
