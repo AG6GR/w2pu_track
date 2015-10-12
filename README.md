@@ -7,7 +7,7 @@ The original w2pu_track program was written by K1JT, who kindly gave permission 
 Development History
 -----
 
-The original w2pu_track.py application was written by K1JT as a rotor control program for the W2PU station. During the fall of 2014, AG6GR worked on extending the program to allow satellite tracking. In addition, AG6GR performed some restructuring of the original w2pu_track source code including the abstraction of serial communications with the station's rotor controllers into a dedicated Rotator class. 
+The original w2pu_track.py application was written by K1JT as a rotor control program for the W2PU station. During the winter of 2015, AG6GR worked on extending the program to allow satellite tracking. In addition, AG6GR performed some restructuring of the original w2pu_track source code including the abstraction of serial communications with the station's rotor controllers into a dedicated Rotator class. 
 
 The primary goals of this project included:
 <ul>
