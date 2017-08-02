@@ -44,3 +44,14 @@ Clicking on the last radio button labeled "Satellite" will switch to satellite t
 
 <p align="center"><em>Figure 2: Satellite Selection Dialog</em></p>
 Once a satellite has been selected, the radio button label will be updated to refer to the currently selected satellite. Clicking on the button again will reopen the selection dialog to allow a different satellite to be selected.
+
+Satellite Reception
+-----
+
+As a proof of concept, this setup was used to receive telemetry data from a couple different cubesats. In particular, I was able to record the morse code telemetry beacons on Cubesat XI-IV and Cubesat XI-V of the [University of Tokyo Cubesat Team](http://www.space.t.u-tokyo.ac.jp/cubesat/index-e.html) and sent a copy of the received audio to their team. Much to my suprise, a couple years later they replied with a pair of QSL cards confirming the reception report. Scans have been attached below. Many thanks to the Nakasuka Laboratory at the University of Tokyo and congratulations on launching and maintaining such a long-lived Cubesat mission!
+
+
+<p align="center"><img src ="https://github.com/AG6GR/w2pu_track/blob/master/doc/JQ1YCW_QSL_Cover.jpg" align="center" width="480px"/>
+</p>
+<p align="center"><img src ="https://github.com/AG6GR/w2pu_track/blob/master/doc/JQ1YCW_QSL_Back.jpg" align="center" width="360px"/><img src ="https://github.com/AG6GR/w2pu_track/blob/master/doc/JQ1YGW_QSL.jpg" align="center" width="360px"/>
+</p>
